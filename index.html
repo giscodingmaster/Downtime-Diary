@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام متابعة المشاكل التقنية | الإصدار الاحترافي</title>
+    
+    <!-- Google Fonts - Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/customParseFormat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isBetween.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/relativeTime.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/locale/ar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        /* --- ADVANCED STYLESHEET --- */
+        :root {
+            --primary-color: #4A55A2; --primary-light: #7895CB; --secondary-color: #6c757d; --success-color: #28a745; --warning-color: #F7B600; --danger-color: #dc3545;
+            --light-color: #ffffff; --bg-color: #F8F9FD; --text-dark: #343a40; --text-light: #6c757d; --border-color: #e3e9f3; --font-family: 'Cairo', sans-serif;
+            --border-radius: 12px; --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-dark); margin: 0; direction: rtl; text-align: right; line-height: 1.7; overflow-x: hidden; }
+        
+        /* Layout with Grid & Flexbox */
+        .container { display: grid; grid-template-rows: auto auto 1fr; gap: 25px; max-width: 1600px; margin: 0 auto; padding: 25px; opacity: 0; transition: opacity 0.5s ease; }
+        header { grid-row: 1 / 2; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%); color: white; padding: 20px 30px; border-radius: var(--border-radius); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 8px 25px rgba(74, 85, 162, 0.3); }
+        .dashboard-controls { grid-row: 2 / 3; }
+        .table-section { grid-row: 3 / 4; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .btn { padding: 10px 22px; border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-size: 1em; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary { background-color: var(--primary-color); color: #fff; box-shadow: 0 4px 10px rgba(74, 85, 162, 0.3); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(74, 85, 162, 0.4); }
+        .btn-secondary { background-color: #fff; color: var(--primary-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: #f8f9fa; }
+        
+        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--light-color); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--box-shadow); text-align: right; border-right: 4px solid; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .stat-card h3 { margin: 0 0 10px 0; font-size: 1.1em; color: var(--text-light); }
+        .stat-card .count { font-size: 2.2em; font-weight: 700; }
+        #total-card { border-color: var(--primary-color); } #total-card .count { color: var(--primary-color); }
+        #pending-card { border-color: var(--warning-color); } #pending-card .count { color: var(--warning-color); }
+        #resolved-card { border-color: var(--success-color); } #resolved-card .count { color: var(--success-color); }
+        #overdue-card { border-color: var(--danger-color); } #overdue-card .count { color: var(--danger-color); }
+        
+        .actions-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin: 25px 0; }
+        .table-container { background-color: var(--light-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px; text-align: right; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+        th { background-color: #f8f9fd; font-weight: 700; color: var(--text-light); }
+        tr.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        tr.revealed { opacity: 1; transform: translateY(0); }
+        .status-indicator { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9em; text-align: center; }
+        .status-pending { background-color: var(--warning-color); color: var(--text-dark); }
+        .status-resolved { background-color: var(--success-color); color: white; }
+        .status-overdue { background-color: var(--danger-color); color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+        
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; backdrop-filter: blur(4px); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .side-panel { position: fixed; top: 0; left: 0; transform: translateX(-100%); width: 100%; max-width: 500px; height: 100%; background-color: var(--light-color); box-shadow: 0 0 50px rgba(0,0,0,0.2); z-index: 1001; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; }
+        .side-panel.active { transform: translateX(0); }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { color: var(--primary-color); }
+        .form-container { padding: 30px; overflow-y: auto; flex-grow: 1; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group input.invalid, .form-group select.invalid { border-color: var(--danger-color) !important; }
+        .modal-footer { padding: 20px; border-top: 1px solid var(--border-color); flex-shrink: 0; background-color: #f8f9fd; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="title-section"><h1>نظام متابعة المشاكل التقنية</h1><p>لوحة تحكم مركزية لضمان استمرارية العمليات</p></div>
+            <div class="user-info"><span id="user-email"></span><button id="logout-btn" class="btn" style="background-color: rgba(255,255,255,0.2); color: #fff;">تسجيل الخروج</button></div>
+        </header>
+
+        <div class="dashboard-controls">
+            <div class="stats-cards">
+                 <div class="stat-card" id="total-card"><h3>إجمالي المشاكل</h3><p class="count" id="count-total">0</p></div>
+                 <div class="stat-card" id="pending-card"><h3>جاري المتابعة</h3><p class="count" id="count-pending">0</p></div>
+                 <div class="stat-card" id="resolved-card"><h3>تم الحل</h3><p class="count" id="count-resolved">0</p></div>
+                 <div class="stat-card" id="overdue-card"><h3>مشاكل متأخرة</h3><p class="count" id="count-overdue">0</p></div>
+            </div>
+        </div>
+        
+        <div class="table-section">
+            <div class="actions-bar">
+                <button id="add-issue-btn" class="btn btn-primary">إضافة مشكلة جديدة +</button>
+                <div class="table-filters">
+                    <label for="filter-region">المنطقة:</label><select id="filter-region" class="btn btn-secondary"><option value="all">كل المناطق</option></select>
+                    <label for="filter-status">الحالة:</label><select id="filter-status" class="btn btn-secondary"><option value="all">كل الحالات</option><option value="جاري المتابعة">جاري المتابعة</option><option value="تم الحل">تم الحل</option><option value="overdue">متأخرة</option></select>
+                </div>
+                <div class="print-export-buttons">
+                    <button id="print-btn" class="btn btn-secondary">طباعة</button><button id="export-pdf-btn" class="btn btn-secondary">تصدير PDF</button><button id="export-excel-btn" class="btn btn-secondary">تصدير Excel</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>المنطقة</th><th>نوع المشكلة</th><th>الأداة</th><th>الإدارة</th><th>الحالة</th><th>وقت البدء</th><th>مدة العمل</th><th>الإجراءات</th></tr></thead>
+                    <tbody id="issues-table-body">
+                       <tr><td colspan="8" id="loader" style="padding: 50px; text-align:center;">جاري التحقق من الهوية...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW Sliding Panel Modal -->
+    <div class="modal-overlay" id="add-modal-overlay">
+        <div class="side-panel" id="add-side-panel">
+            <div class="modal-header"><h2>تسجيل مشكلة جديدة</h2><span class="close-btn" data-target="add">&times;</span></div>
+            <div class="form-container">
+                <form id="add-issue-form" novalidate>
+                    <div class="form-group"><label for="region">المنطقة</label><select id="region" required></select></div>
+                    <div class="form-group"><label for="department">الإدارة المسؤولة</label><select id="department" required></select></div>
+                    <div class="form-group"><label for="issue-type">نوع المشكلة</label><select id="issue-type" required></select></div>
+                    <div class="form-group"><label for="affected-tool">الأداة المتأثرة</label><input type="text" id="affected-tool" required placeholder="مثال: نظام GIS، خادم الملفات"></div>
+                    <div class="form-group"><label for="issue-details">تفاصيل المشكلة</label><textarea id="issue-details" required rows="4"></textarea></div>
+                    <div class="form-group"><label for="start-time">تاريخ ووقت بداية المشكلة</label><input type="datetime-local" id="start-time" required></div>
+                </form>
+            </div>
+            <div class="modal-footer"><button type="submit" form="add-issue-form" class="btn btn-primary" style="width: 100%;">إضافة المشكلة</button></div>
+        </div>
+    </div>
+    
+    <!-- Update Issue Modal -->
+    <div class="modal-overlay" id="update-modal-overlay">
+        <div class="side-panel" id="update-side-panel">
+            <div class="modal-header"><h2>تحديث وحل المشكلة</h2><span class="close-btn" data-target="update">&times;</span></div>
+            <div class="form-container">
+                <form id="update-issue-form">
+                    <input type="hidden" id="update-issue-id">
+                    <div class="form-group"><label>تفاصيل المشكلة الأصلية:</label><div id="original-issue-details" style="background: #f0f0f0; padding: 15px; border-radius: 8px; line-height: 1.6;"></div></div>
+                    <div class="form-group"><label for="resolution-time">تاريخ ووقت الحل</label><input type="datetime-local" id="resolution-time" required></div>
+                    <div class="form-group"><label for="resolution-notes">ملاحظات عند الحل</label><textarea id="resolution-notes" rows="4"></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer"><button type="submit" form="update-issue-form" class="btn" style="width: 100%; background-color: var(--success-color); color: white;">تأكيد حل المشكلة</button></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // *** ضع إعدادات Firebase الخاصة بك هنا ***
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCnPJLH1IYwUf1iv5nL52diHXXUlfosIA",
+            authDomain: "issue-tracker-5d2a1.firebaseapp.com",
+            databaseURL: "https://issue-tracker-5d2a1-default-rtdb.firebaseio.com",
+            projectId: "issue-tracker-5d2a1",
+            storageBucket: "issue-tracker-5d2a1.firebasestorage.app",
+            messagingSenderId: "883603835871",
+            appId: "1:883603835871:web:f3af7423d128feafa0926a",
+            measurementId: "G-3KXLNXZW4N"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const issuesRef = ref(database, 'issues');
+        dayjs.extend(dayjs_plugin_customParseFormat);
+        dayjs.extend(dayjs_plugin_isBetween);
+        dayjs.extend(dayjs_plugin_relativeTime);
+        dayjs.locale('ar');
+        const { jsPDF } = window.jspdf;
+
+        // --- GLOBAL STATE & CONSTANTS ---
+        let allIssuesData = {}, filteredIssuesForExport = [], liveTimers = [], currentUser = null;
+        const ACCEPTABLE_DURATION_HOURS = 8;
+        const DROPDOWN_OPTIONS = {
+            regions: ['شرق النيل', 'القليوبية', 'الصعيد', 'الغربية', 'المنوفية', 'الدقهلية', 'الإسكندرية'],
+            departments: ['إدارة نظم المعلومات الجغرافية', 'إدارة الـIT', 'إدارة أخرى'],
+            issueTypes: ['عطل سيرفر', 'صيانة سيرفر', 'عطل قاعدة بيانات', 'عطل أداة إدخال', 'مشكلة في الرسم', 'تحديث أداة', 'مشكلة شبكة', 'أخرى']
+        };
+
+        const DOM = {
+            container: document.querySelector('.container'), userEmailSpan: document.getElementById('user-email'), logoutBtn: document.getElementById('logout-btn'), addIssueBtn: document.getElementById('add-issue-btn'), issuesTableBody: document.getElementById('issues-table-body'),
+            filterRegion: document.getElementById('filter-region'), filterStatus: document.getElementById('filter-status'), addModalOverlay: document.getElementById('add-modal-overlay'), addSidePanel: document.getElementById('add-side-panel'),
+            updateModalOverlay: document.getElementById('update-modal-overlay'), updateSidePanel: document.getElementById('update-side-panel'), closeBtns: document.querySelectorAll('.close-btn'),
+            addIssueForm: document.getElementById('add-issue-form'), updateIssueForm: document.getElementById('update-issue-form'),
+            printBtn: document.getElementById('print-btn'), exportPdfBtn: document.getElementById('export-pdf-btn'), exportExcelBtn: document.getElementById('export-excel-btn'),
+        };
+        
+        // --- AUTHENTICATION & INITIALIZATION ---
+        function initializeAppLogic() {
+            populateDropdowns();
+            setupEventListeners();
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    DOM.userEmailSpan.textContent = user.email;
+                    DOM.container.style.opacity = '1';
+                    listenForIssues();
+                } else { window.location.href = 'login.html'; }
+            });
+        }
+        initializeAppLogic();
+
+        function populateDropdowns() {
+            const createOptions = (arr) => arr.map(item => `<option value="${item}">${item}</option>`).join('');
+            DOM.addIssueForm.region.innerHTML = createOptions(DROPDOWN_OPTIONS.regions);
+            DOM.filterRegion.innerHTML += createOptions(DROPDOWN_OPTIONS.regions);
+            DOM.addIssueForm.department.innerHTML = createOptions(DROPDOWN_OPTIONS.departments);
+            DOM.addIssueForm['issue-type'].innerHTML = `<option value="" disabled selected>-- اختر --</option>${createOptions(DROPDOWN_OPTIONS.issueTypes)}`;
+        }
+
+        function listenForIssues() {
+            onValue(issuesRef, (snapshot) => {
+                allIssuesData = snapshot.val() || {};
+                renderTable();
+            }, { error: (err) => console.error(err) });
+        }
+
+        // --- DYNAMIC RENDERING ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        function renderTable() {
+            liveTimers.forEach(clearInterval);
+            liveTimers = [];
+            DOM.issuesTableBody.innerHTML = '';
+            let issuesArray = Object.entries(allIssuesData).map(([key, value]) => ({ key, ...value }));
+            issuesArray.sort((a, b) => dayjs(b.startTime).unix() - dayjs(a.startTime).unix());
+            const filteredIssues = issuesArray.filter(issue => (DOM.filterRegion.value === 'all' || issue.region === DOM.filterRegion.value) && (DOM.filterStatus.value === 'all' ? true : (DOM.filterStatus.value === 'overdue' ? (issue.status === 'جاري المتابعة' && (calculateWorkingHoursDuration(issue.startTime).totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) : issue.status === DOM.filterStatus.value)));
+            filteredIssuesForExport = filteredIssues;
+            if (filteredIssues.length === 0) {
+                DOM.issuesTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 40px;">${Object.keys(allIssuesData).length === 0 ? 'لا توجد مشاكل مسجلة حالياً. انقر على "إضافة مشكلة جديدة" للبدء.' : 'لا توجد نتائج تطابق الفلترة.'}</td></tr>`;
+                updateStats({ total: 0, pending: 0, resolved: 0, overdue: 0 }); return;
+            }
+            let stats = { total: filteredIssues.length, pending: 0, resolved: 0, overdue: 0 };
+            filteredIssues.forEach((issue, index) => {
+                const duration = calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime);
+                let isOverdue = false;
+                if (issue.status === 'جاري المتابعة') { stats.pending++; if ((duration.totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) { isOverdue = true; stats.overdue++; } } else { stats.resolved++; }
+                const statusClass = `status-${issue.status === 'تم الحل' ? 'resolved' : (isOverdue ? 'overdue' : 'pending')}`;
+                const statusText = isOverdue ? 'متأخرة' : issue.status;
+                const durationCellId = `duration-${issue.key}`;
+                const tr = document.createElement('tr');
+                tr.classList.add('reveal');
+                tr.style.transitionDelay = `${index * 50}ms`;
+                tr.innerHTML = `<td>${issue.region}</td><td>${issue.issueType}</td><td>${issue.affectedTool}</td><td>${issue.department}</td><td><span class="status-indicator ${statusClass}">${statusText}</span></td><td>${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}</td><td id="${durationCellId}">${formatDuration(duration)}</td><td><button class="btn btn-secondary update-btn" data-key="${issue.key}">تحديث</button></td>`;
+                DOM.issuesTableBody.appendChild(tr);
+                observer.observe(tr);
+                if (issue.status === 'جاري المتابعة') { liveTimers.push(setInterval(() => { const cell = document.getElementById(durationCellId); if(cell) cell.textContent = formatDuration(calculateWorkingHoursDuration(issue.startTime)); }, 60000)); }
+            });
+            updateStats(stats);
+        }
+        
+        // --- CORE LOGIC (DURATION, STATS, FORMS) ---
+        function calculateWorkingHoursDuration(startStr, endStr) {
+            let start = dayjs(startStr);
+            let end = endStr ? dayjs(endStr) : dayjs();
+            if (!start.isValid() || !end.isValid() || start.isAfter(end)) return { totalMinutes: 0 };
+            let totalMinutes = 0;
+            let currentDay = start.clone().startOf('day');
+            while (currentDay.isBefore(end.startOf('day')) || currentDay.isSame(end.startOf('day'))) {
+                const dayOfWeek = currentDay.day();
+                if (dayOfWeek >= 0 && dayOfWeek <= 4) { // Sunday to Thursday
+                    const workDayStart = currentDay.hour(8).minute(0);
+                    const workDayEnd = currentDay.hour(16).minute(0);
+                    const intervalStart = start.isAfter(workDayStart) ? start : workDayStart;
+                    const intervalEnd = end.isBefore(workDayEnd) ? end : workDayEnd;
+                    if (intervalEnd.isAfter(intervalStart)) totalMinutes += intervalEnd.diff(intervalStart, 'minute');
+                }
+                currentDay = currentDay.add(1, 'day');
+            }
+            return { totalMinutes };
+        }
+        function formatDuration({ totalMinutes }) {
+            if (totalMinutes < 1) return "لحظات";
+            const workingHoursPerDay = 8;
+            const minutesPerDay = workingHoursPerDay * 60;
+            const days = Math.floor(totalMinutes / minutesPerDay);
+            const remainingMinutes = totalMinutes % minutesPerDay;
+            const hours = Math.floor(remainingMinutes / 60);
+            const minutes = Math.round(remainingMinutes % 60);
+            let parts = [];
+            if (days > 0) parts.push(`${days} ${days > 1 ? 'أيام' : 'يوم'}`);
+            if (hours > 0) parts.push(`${hours} س`);
+            if (minutes > 0 && days === 0) parts.push(`${minutes} د`);
+            if (parts.length === 0 && totalMinutes > 0) return "أقل من ساعة";
+            return parts.join(' و ');
+        }
+        function updateStats({ total, pending, resolved, overdue }) {
+            document.getElementById('count-total').textContent = total;
+            document.getElementById('count-pending').textContent = pending;
+            document.getElementById('count-resolved').textContent = resolved;
+            document.getElementById('count-overdue').textContent = overdue;
+        }
+
+        // --- EVENT LISTENERS & HANDLERS ---
+        function setupEventListeners() {
+            DOM.logoutBtn.addEventListener('click', () => signOut(auth));
+            [DOM.filterRegion, DOM.filterStatus].forEach(el => el.addEventListener('change', renderTable));
+            DOM.addIssueBtn.addEventListener('click', () => { DOM.addIssueForm.reset(); DOM.addModalOverlay.classList.add('active'); DOM.addSidePanel.classList.add('active'); DOM.addIssueForm.elements['start-time'].value = dayjs().format('YYYY-MM-DDTHH:mm'); });
+            DOM.closeBtns.forEach(btn => btn.addEventListener('click', (e) => { const target = e.target.dataset.target; document.getElementById(`${target}-modal-overlay`).classList.remove('active'); document.getElementById(`${target}-side-panel`).classList.remove('active'); }));
+            DOM.addIssueForm.addEventListener('submit', handleAddIssue);
+            DOM.updateIssueForm.addEventListener('submit', handleUpdateIssue);
+            DOM.issuesTableBody.addEventListener('click', (e) => { if (e.target.classList.contains('update-btn')) openUpdateModal(e.target.dataset.key); });
+            DOM.printBtn.addEventListener('click', () => window.print());
+            DOM.exportPdfBtn.addEventListener('click', exportPDF);
+            DOM.exportExcelBtn.addEventListener('click', exportExcel);
+        }
+        
+        function validateForm(form) {
+            let isValid = true;
+            form.querySelectorAll('[required]').forEach(input => { input.classList.remove('invalid'); if (!input.value) { isValid = false; input.classList.add('invalid'); } });
+            return isValid;
+        }
+
+        function handleAddIssue(e) {
+            e.preventDefault();
+            if (!validateForm(DOM.addIssueForm)) return;
+            const form = e.target;
+            push(issuesRef, {
+                region: form.elements.region.value, department: form.elements.department.value,
+                issueType: form.elements['issue-type'].value, affectedTool: form.elements['affected-tool'].value,
+                issueDetails: form.elements['issue-details'].value, startTime: form.elements['start-time'].value,
+                status: 'جاري المتابعة', createdBy: currentUser.uid, createdAt: new Date().toISOString(),
+            }).then(() => { DOM.addModalOverlay.classList.remove('active'); DOM.addSidePanel.classList.remove('active'); });
+        }
+        
+        function openUpdateModal(issueId) {
+            const data = allIssuesData[issueId];
+            DOM.updateIssueForm.reset();
+            DOM.updateIssueForm.elements['update-issue-id'].value = issueId;
+            DOM.updateIssueForm.elements['resolution-time'].value = dayjs().format('YYYY-MM-DDTHH:mm');
+            document.getElementById('original-issue-details').innerHTML = `<strong>المنطقة:</strong> ${data.region}<br><strong>نوع المشكلة:</strong> ${data.issueType}<br><strong>تفاصيل:</strong> ${data.issueDetails}`;
+            DOM.updateModalOverlay.classList.add('active');
+            DOM.updateSidePanel.classList.add('active');
+        }
+        
+        function handleUpdateIssue(e) {
+            e.preventDefault();
+            if (!validateForm(DOM.updateIssueForm)) return;
+            const form = e.target;
+            const issueId = form.elements['update-issue-id'].value;
+            update(ref(database, 'issues/' + issueId), {
+                status: 'تم الحل', resolutionTime: form.elements['resolution-time'].value,
+                resolutionNotes: form.elements['resolution-notes'].value, resolvedBy: currentUser.uid
+            }).then(() => { DOM.updateModalOverlay.classList.remove('active'); DOM.updateSidePanel.classList.remove('active'); });
+        }
+        
+        // --- EXPORT FUNCTIONS ---
+        function exportPDF() {
+            const doc = new jsPDF();
+            doc.text("Server Issues Report", 14, 15);
+            doc.autoTable({
+                head: [['المدة', 'تاريخ البدء', 'الحالة', 'الأداة', 'نوع المشكلة', 'المنطقة']],
+                body: filteredIssuesForExport.map(issue => [
+                    formatDuration(calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime)),
+                    dayjs(issue.startTime).format('YYYY/MM/DD'), issue.status, issue.affectedTool, issue.issueType, issue.region
+                ]),
+                styles: { font: 'Helvetica', halign: 'right' }, headStyles: { halign: 'right', fillColor: [74, 85, 162] },
+            });
+            doc.save(`report-${dayjs().format('YYYY-MM-DD')}.pdf`);
+        }
+        
+        function exportExcel() {
+            const data = filteredIssuesForExport.map(issue => ({
+                'المنطقة': issue.region, 'نوع المشكلة': issue.issueType, 'الأداة المتأثرة': issue.affectedTool, 'الإدارة المسؤولة': issue.department, 'الحالة': issue.status,
+                'وقت البدء': dayjs(issue.startTime).format('YYYY-MM-DD HH:mm'),
+                'وقت الحل': issue.resolutionTime ? dayjs(issue.resolutionTime).format('YYYY-MM-DD HH:mm') : 'لم تحل بعد',
+                'مدة العمل (بالساعات)': (calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime).totalMinutes / 60).toFixed(2)
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Issues");
+            XLSX.writeFile(workbook, `report-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+        }
+    </script>
+</body>
+</html>

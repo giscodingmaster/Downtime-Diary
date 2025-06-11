@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام متابعة المشاكل</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #1a1d23;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated gradient background */
+        .gradient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #2c3e50, #34495e, #2980b9, #3498db);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.15;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Neural network animation */
+        .neural-network {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .neural-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #3498db;
+            border-radius: 50%;
+            animation: neuralPulse 3s ease-in-out infinite;
+        }
+
+        .neural-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3498db, transparent);
+            animation: neuralFlow 4s linear infinite;
+        }
+
+        @keyframes neuralPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        @keyframes neuralFlow {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: particleFloat 20s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Glass morphism container */
+        .login-container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 60px 50px;
+            border-radius: 30px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: containerEntry 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            animation: shimmer 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes containerEntry {
+            0% {
+                opacity: 0;
+                transform: translateY(100px) rotateX(20deg);
+                filter: blur(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+                filter: blur(0px);
+            }
+        }
+
+        /* Holographic header */
+        .login-header {
+            margin-bottom: 40px; /* Adjusted spacing */
+            position: relative;
+        }
+
+        .login-container h1 {
+            background: linear-gradient(45deg, #2c3e50, #34495e, #2980b9, #3498db);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3em;
+            font-weight: 900;
+            margin-bottom: 8px; /* Adjusted spacing */
+            letter-spacing: -2px;
+            animation: holographicText 8s ease-in-out infinite, textGlow 2s ease-in-out infinite alternate, fadeInUp 1s ease-out 0.5s both;
+            position: relative;
+        }
+
+        .login-container h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #34495e, #2980b9);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: holographicText 8s ease-in-out infinite reverse;
+            z-index: -1;
+            filter: blur(2px);
+            opacity: 0.5;
+        }
+
+        @keyframes holographicText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes textGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(44, 62, 80, 0.5)); }
+            100% { filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.6)); }
+        }
+        
+        /* --- NEW: Department Title Style --- */
+        .department-title {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: rgba(220, 230, 255, 0.9);
+            margin-bottom: 25px;
+            letter-spacing: 1.5px;
+            position: relative;
+            text-shadow: 
+                0 0 8px rgba(52, 152, 219, 0.5),
+                0 0 15px rgba(52, 152, 219, 0.3);
+            /* Initial state for animation */
+            opacity: 0;
+            animation: fadeInTitle 1.2s ease-out 0.8s forwards;
+            overflow: hidden; /* To contain the scanline */
+            padding-bottom: 5px; /* Space for the scanline glow */
+        }
+
+        .department-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.7), transparent);
+            transform: translateX(-101%);
+            animation: scanLineReveal 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) 0.7s forwards;
+        }
+
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scanLineReveal {
+            0% {
+                transform: translateX(-101%);
+            }
+            100% {
+                transform: translateX(101%);
+            }
+        }
+        /* --- End of New Styles --- */
+
+        .login-container p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 0;
+            animation: fadeInUp 1s ease-out 1.2s both; /* Delayed animation */
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Futuristic form styling */
+        .form-group {
+            margin-bottom: 30px;
+            text-align: right;
+            position: relative;
+            animation: slideInRight 0.8s ease-out both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 1.4s; } /* Delayed animation */
+        .form-group:nth-child(2) { animation-delay: 1.6s; } /* Delayed animation */
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-wrapper::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #2980b9, #3498db);
+            transition: width 0.4s ease;
+            z-index: 2;
+        }
+
+        .input-wrapper.focused::before {
+            width: 100%;
+        }
+
+        input[type="email"], 
+        input[type="password"] {
+            width: 100%;
+            padding: 20px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input[type="email"]:focus, 
+        input[type="password"]:focus {
+            border-color: transparent;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(52, 152, 219, 0.15),
+                inset 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            margin-bottom: 40px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            animation: slideInLeft 0.8s ease-out 1.8s both; /* Delayed animation */
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-left: 12px;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: transparent;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .remember-me input[type="checkbox"]:checked {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+            border-color: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .remember-me input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .remember-me label {
+            cursor: pointer;
+            margin-bottom: 0;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        /* Quantum button */
+        .btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            background-size: 400% 400%;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Cairo', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: quantumEntry 1s ease-out 2.0s both; /* Delayed animation */
+        }
+
+        @keyframes quantumEntry {
+            from {
+                opacity: 0;
+                transform: translateY(30px) rotateX(45deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 25px 50px rgba(52, 152, 219, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            background-position: 100% 50%;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:active {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        /* Cyberpunk error message */
+        .error-message {
+            color: #e74c3c;
+            margin-top: 25px;
+            min-height: 20px;
+            display: none;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            font-size: 14px;
+            animation: glitchError 0.5s ease-in-out;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes glitchError {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-3px); }
+            40% { transform: translateX(3px); }
+            50% { transform: translateX(-2px); }
+            60% { transform: translateX(2px); }
+        }
+
+        /* Quantum loading state */
+        .btn.loading {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            animation: quantumLoading 2s ease-in-out infinite;
+        }
+
+        @keyframes quantumLoading {
+            0%, 100% { box-shadow: 0 0 20px rgba(44, 62, 80, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(52, 152, 219, 0.5); }
+        }
+
+        .btn.loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: quantumSpin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes quantumSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Holographic success */
+        .success-checkmark {
+            display: none;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            margin: 30px auto;
+            position: relative;
+            animation: successPulse 0.8s ease-out;
+        }
+
+        .success-checkmark::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 28px;
+            border: solid white;
+            border-width: 0 4px 4px 0;
+            transform: translate(-50%, -60%) rotate(45deg);
+            animation: checkmarkDraw 0.5s ease-out 0.3s both;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+
+        @keyframes checkmarkDraw {
+            0% { height: 0; width: 0; }
+            50% { height: 28px; width: 0; }
+            100% { height: 28px; width: 16px; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 50px 35px;
+            }
+            
+            .login-container h1 {
+                font-size: 2.2em;
+            }
+            
+            .department-title {
+                font-size: 1.2em;
+            }
+
+            input[type="email"], 
+            input[type="password"] {
+                padding: 18px 20px;
+            }
+            
+            .btn {
+                padding: 18px;
+                font-size: 16px;
+            }
+        }
+
+        /* Responsive animations */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <div class="neural-network">
+        <!-- Neural network dots and lines will be generated by JavaScript -->
+    </div>
+    
+    <div class="particles">
+        <!-- Particles will be generated by JavaScript -->
+    </div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <h1 data-text="أهلاً بك">أهلاً بك</h1>
+            <h2 class="department-title">إدارة المساحة والخرائط</h2>
+            <p>الرجاء تسجيل الدخول للمتابعة</p>
+        </div>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" required placeholder="أدخل بريدك الإلكتروني">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                </div>
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">تذكرني</label>
+            </div>
+            
+            <button type="submit" class="btn" id="login-btn">
+                تسجيل الدخول
+            </button>
+            
+            <div class="success-checkmark" id="success-checkmark"></div>
+            <p id="error-message" class="error-message"></p>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, setPersistence, signInWithEmailAndPassword, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCnPJLH1IYwUf1iv5nL52diHXXUlfosIA",
+            authDomain: "issue-tracker-5d2a1.firebaseapp.com",
+            databaseURL: "https://issue-tracker-5d2a1-default-rtdb.firebaseio.com",
+            projectId: "issue-tracker-5d2a1",
+            storageBucket: "issue-tracker-5d2a1.firebasestorage.app",
+            messagingSenderId: "883603835871",
+            appId: "1:883603835871:web:d3792458b40bac62a0926a",
+            measurementId: "G-V22ZG535ZS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Generate neural network background
+        function createNeuralNetwork() {
+            const neuralNetwork = document.querySelector('.neural-network');
+            const dotCount = 20;
+            const lineCount = 15;
+
+            // Create dots
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'neural-dot';
+                dot.style.left = Math.random() * 100 + '%';
+                dot.style.top = Math.random() * 100 + '%';
+                dot.style.animationDelay = Math.random() * 3 + 's';
+                neuralNetwork.appendChild(dot);
+            }
+
+            // Create lines
+            for (let i = 0; i < lineCount; i++) {
+                const line = document.createElement('div');
+                line.className = 'neural-line';
+                line.style.left = Math.random() * 100 + '%';
+                line.style.top = Math.random() * 100 + '%';
+                line.style.width = Math.random() * 200 + 100 + 'px';
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                line.style.animationDelay = Math.random() * 4 + 's';
+                neuralNetwork.appendChild(line);
+            }
+        }
+
+        // Generate floating particles
+        function createParticles() {
+            const particles = document.querySelector('.particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Initialize background animations
+        createNeuralNetwork();
+        createParticles();
+
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const rememberMeCheckbox = document.getElementById('remember-me');
+        const loginBtn = document.getElementById('login-btn');
+        const successCheckmark = document.getElementById('success-checkmark');
+
+        // Enhanced input animations
+        const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+                this.parentElement.parentElement.style.transform = 'translateX(-5px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+                this.parentElement.parentElement.style.transform = 'translateX(0)';
+            });
+
+            // Add typing effect
+            input.addEventListener('input', function() {
+                this.style.boxShadow = '0 0 20px rgba(255, 0, 102, 0.3)';
+                setTimeout(() => {
+                    this.style.boxShadow = '';
+                }, 200);
+            });
+        });
+
+        // Enhanced form submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Hide previous error messages
+            errorMessage.style.display = 'none';
+            
+            // Show loading state with quantum effects
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'جاري تسجيل الدخول...';
+            loginBtn.disabled = true;
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const persistence = rememberMeCheckbox.checked ? browserLocalPersistence : browserSessionPersistence;
+
+            setPersistence(auth, persistence)
+                .then(() => {
+                    return signInWithEmailAndPassword(auth, email, password);
+                })
+                .then((userCredential) => {
+                    // Show success state with holographic effects
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'تم بنجاح!';
+                    loginBtn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+                    loginBtn.style.transform = 'translateY(-8px) scale(1.05)';
+                    successCheckmark.style.display = 'block';
+                    
+                    // Add success particle burst
+                    createSuccessParticles();
+                    
+                    // Redirect after effects
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                })
+                .catch((error) => {
+                    // Reset button state
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'تسجيل الدخول';
+                    loginBtn.disabled = false;
+                    
+                    // Show enhanced error message
+                    errorMessage.style.display = 'block';
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                        case 'auth/wrong-password':
+                        case 'auth/invalid-credential':
+                            errorMessage.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage.textContent = 'صيغة البريد الإلكتروني غير صحيحة.';
+                            break;
+                        default:
+                            errorMessage.textContent = 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
+                            console.error('Login error:', error);
+                    }
+                });
+        });
+
+        // Create success particle burst
+        function createSuccessParticles() {
+            const container = document.querySelector('.login-container');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.background = '#27ae60';
+                particle.style.borderRadius = '50%';
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.animation = `successBurst 2s ease-out forwards`;
+                particle.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                const angle = (i / particleCount) * Math.PI * 2;
+                const velocity = Math.random() * 100 + 50;
+                const keyframes = `
+                    @keyframes successBurst {
+                        0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+                        100% { 
+                            transform: translate(${Math.cos(angle) * velocity - 50}%, ${Math.sin(angle) * velocity - 50}%) scale(1); 
+                            opacity: 0; 
+                        }
+                    }
+                `;
+                
+                if (!document.getElementById('success-burst-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'success-burst-styles';
+                    style.textContent = keyframes;
+                    document.head.appendChild(style);
+                }
+                
+                container.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 2000);
+            }
+        }
+
+        // Interactive mouse effects
+        document.addEventListener('mousemove', (e) => {
+            const container = document.querySelector('.login-container');
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Create mouse trail effect
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                const trail = document.createElement('div');
+                trail.style.position = 'absolute';
+                trail.style.left = e.clientX + 'px';
+                trail.style.top = e.clientY + 'px';
+                trail.style.width = '6px';
+                trail.style.height = '6px';
+                trail.style.background = 'radial-gradient(circle, #3498db, transparent)';
+                trail.style.borderRadius = '50%';
+                trail.style.pointerEvents = 'none';
+                trail.style.zIndex = '1000';
+                trail.style.animation = 'trailFade 1s ease-out forwards';
+                
+                document.body.appendChild(trail);
+                
+                setTimeout(() => {
+                    trail.remove();
+                }, 1000);
+            }
+            
+            // Parallax effect for neural network
+            const neuralDots = document.querySelectorAll('.neural-dot');
+            const neuralLines = document.querySelectorAll('.neural-line');
+            const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            
+            neuralDots.forEach((dot, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                const offsetX = mouseX * speed * 10;
+                const offsetY = mouseY * speed * 10;
+                dot.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            });
+            
+            neuralLines.forEach((line, index) => {
+                const speed = (index % 2 + 1) * 0.3;
+                const offsetX = mouseX * speed * 15;
+                const offsetY = mouseY * speed * 15;
+                line.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${Math.random() * 360}deg)`;
+            });
+        });
+
+        // Add trail fade animation
+        const trailStyle = document.createElement('style');
+        trailStyle.textContent = `
+            @keyframes trailFade {
+                0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            }
+        `;
+        document.head.appendChild(trailStyle);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Add focus ring animations
+        inputs.forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') {
+                    input.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                }
+            });
+        });
+
+        // Ambient sound simulation (visual feedback)
+        function createAmbientEffects() {
+            setInterval(() => {
+                const randomDot = document.querySelectorAll('.neural-dot')[Math.floor(Math.random() * document.querySelectorAll('.neural-dot').length)];
+                if (randomDot) {
+                    randomDot.style.boxShadow = '0 0 20px #3498db';
+                    setTimeout(() => {
+                        randomDot.style.boxShadow = '';
+                    }, 500);
+                }
+            }, 2000);
+        }
+
+        createAmbientEffects();
+
+        // Progressive enhancement for modern browsers
+        if ('CSS' in window && 'supports' in window.CSS) {
+            if (CSS.supports('backdrop-filter', 'blur(10px)')) {
+                document.body.classList.add('supports-backdrop-filter');
+            }
+        }
+
+        // Performance optimization
+        let ticking = false;
+        function updateMouseEffects(e) {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    // Optimized mouse effects here
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        // Intersection Observer for performance
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                } else {
+                    entry.target.style.animationPlayState = 'paused';
+                }
+            });
+        });
+
+        // Observe animated elements
+        document.querySelectorAll('.neural-dot, .neural-line, .particle').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>
