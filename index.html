@@ -19,9 +19,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 
     <style>
-        /* --- ADVANCED STYLESHEET --- */
         :root {
             --primary-color: #4A55A2; --primary-light: #7895CB; --secondary-color: #6c757d; --success-color: #28a745; --warning-color: #F7B600; --danger-color: #dc3545;
             --light-color: #ffffff; --bg-color: #F8F9FD; --text-dark: #343a40; --text-light: #6c757d; --border-color: #e3e9f3; --font-family: 'Cairo', sans-serif;
@@ -29,20 +29,17 @@
         }
         *, *::before, *::after { box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-dark); margin: 0; direction: rtl; text-align: right; line-height: 1.7; overflow-x: hidden; }
-        
-        /* Layout with Grid & Flexbox */
         .container { display: grid; grid-template-rows: auto auto 1fr; gap: 25px; max-width: 1600px; margin: 0 auto; padding: 25px; opacity: 0; transition: opacity 0.5s ease; }
         header { grid-row: 1 / 2; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%); color: white; padding: 20px 30px; border-radius: var(--border-radius); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 8px 25px rgba(74, 85, 162, 0.3); }
         .dashboard-controls { grid-row: 2 / 3; }
         .table-section { grid-row: 3 / 4; }
-        
         .user-info { display: flex; align-items: center; gap: 15px; }
-        .btn { padding: 10px 22px; border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-size: 1em; font-weight: 600; transition: all 0.3s ease; }
+        .user-info .admin-badge { background: var(--warning-color); color: #fff; padding: 2px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+        .btn { padding: 10px 22px; border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-size: 1em; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background-color: var(--primary-color); color: #fff; box-shadow: 0 4px 10px rgba(74, 85, 162, 0.3); }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(74, 85, 162, 0.4); }
         .btn-secondary { background-color: #fff; color: var(--primary-color); border: 1px solid var(--border-color); }
         .btn-secondary:hover { background-color: #f8f9fa; }
-        
         .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .stat-card { background: var(--light-color); padding: 20px; border-radius: var(--border-radius); box-shadow: var(--box-shadow); text-align: right; border-right: 4px solid; transition: transform 0.3s ease, box-shadow 0.3s ease; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
@@ -52,20 +49,23 @@
         #pending-card { border-color: var(--warning-color); } #pending-card .count { color: var(--warning-color); }
         #resolved-card { border-color: var(--success-color); } #resolved-card .count { color: var(--success-color); }
         #overdue-card { border-color: var(--danger-color); } #overdue-card .count { color: var(--danger-color); }
-        
         .actions-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin: 25px 0; }
         .table-container { background-color: var(--light-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: right; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+        th, td { padding: 16px; text-align: right; border-bottom: 1px solid #f0f0f0; white-space: nowrap; vertical-align: middle; }
         th { background-color: #f8f9fd; font-weight: 700; color: var(--text-light); }
         tr.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
         tr.revealed { opacity: 1; transform: translateY(0); }
+        tr.recurring-highlight > td { background-color: #fff3cd; } /* Clearer highlight color */
+        tr.recurring-highlight:hover > td { background-color: #ffeeba; }
         .status-indicator { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9em; text-align: center; }
         .status-pending { background-color: var(--warning-color); color: var(--text-dark); }
         .status-resolved { background-color: var(--success-color); color: white; }
         .status-overdue { background-color: var(--danger-color); color: white; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
-        
+        .action-btn-group button { background: none; border: none; cursor: pointer; padding: 5px; } 
+        .action-btn-group button:hover svg { stroke: var(--primary-color); }
+        .action-btn-group .delete-btn:hover svg { stroke: var(--danger-color); }
         .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; backdrop-filter: blur(4px); }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .side-panel { position: fixed; top: 0; left: 0; transform: translateX(-100%); width: 100%; max-width: 500px; height: 100%; background-color: var(--light-color); box-shadow: 0 0 50px rgba(0,0,0,0.2); z-index: 1001; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; }
@@ -77,6 +77,7 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; transition: border-color 0.3s, box-shadow 0.3s; }
         .form-group input.invalid, .form-group select.invalid { border-color: var(--danger-color) !important; }
         .modal-footer { padding: 20px; border-top: 1px solid var(--border-color); flex-shrink: 0; background-color: #f8f9fd; }
+        .user-meta-info { font-size: 0.8em; color: var(--text-light); margin-top: 5px; } 
     </style>
 </head>
 <body>
@@ -84,7 +85,11 @@
     <div class="container">
         <header>
             <div class="title-section"><h1>نظام متابعة المشاكل التقنية</h1><p>لوحة تحكم مركزية لضمان استمرارية العمليات</p></div>
-            <div class="user-info"><span id="user-email"></span><button id="logout-btn" class="btn" style="background-color: rgba(255,255,255,0.2); color: #fff;">تسجيل الخروج</button></div>
+            <div class="user-info">
+                <span id="admin-badge-container"></span>
+                <span id="user-email"></span>
+                <button id="logout-btn" class="btn" style="background-color: rgba(255,255,255,0.2); color: #fff;">تسجيل الخروج</button>
+            </div>
         </header>
 
         <div class="dashboard-controls">
@@ -101,7 +106,14 @@
                 <button id="add-issue-btn" class="btn btn-primary">إضافة مشكلة جديدة +</button>
                 <div class="table-filters">
                     <label for="filter-region">المنطقة:</label><select id="filter-region" class="btn btn-secondary"><option value="all">كل المناطق</option></select>
-                    <label for="filter-status">الحالة:</label><select id="filter-status" class="btn btn-secondary"><option value="all">كل الحالات</option><option value="جاري المتابعة">جاري المتابعة</option><option value="تم الحل">تم الحل</option><option value="overdue">متأخرة</option></select>
+                    <label for="filter-status">الحالة:</label>
+                    <select id="filter-status" class="btn btn-secondary">
+                        <option value="all">كل الحالات</option>
+                        <option value="جاري المتابعة">جاري المتابعة</option>
+                        <option value="تم الحل">تم الحل</option>
+                        <option value="overdue">متأخرة</option>
+                        <!-- Admin option will be added here via JS -->
+                    </select>
                 </div>
                 <div class="print-export-buttons">
                     <button id="print-btn" class="btn btn-secondary">طباعة</button><button id="export-pdf-btn" class="btn btn-secondary">تصدير PDF</button><button id="export-excel-btn" class="btn btn-secondary">تصدير Excel</button>
@@ -118,12 +130,14 @@
         </div>
     </div>
 
-    <!-- NEW Sliding Panel Modal -->
+    <!-- Modals (Add/Edit and Resolve) remain the same -->
     <div class="modal-overlay" id="add-modal-overlay">
         <div class="side-panel" id="add-side-panel">
-            <div class="modal-header"><h2>تسجيل مشكلة جديدة</h2><span class="close-btn" data-target="add">&times;</span></div>
+            <div class="modal-header"><h2 id="modal-title">تسجيل مشكلة جديدة</h2><span class="close-btn" data-target="add">&times;</span></div>
             <div class="form-container">
                 <form id="add-issue-form" novalidate>
+                    <div id="recurring-issue-alert" style="display: none; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 20px;"></div>
+                    <input type="hidden" id="edit-issue-id">
                     <div class="form-group"><label for="region">المنطقة</label><select id="region" required></select></div>
                     <div class="form-group"><label for="department">الإدارة المسؤولة</label><select id="department" required></select></div>
                     <div class="form-group"><label for="issue-type">نوع المشكلة</label><select id="issue-type" required></select></div>
@@ -132,14 +146,13 @@
                     <div class="form-group"><label for="start-time">تاريخ ووقت بداية المشكلة</label><input type="datetime-local" id="start-time" required></div>
                 </form>
             </div>
-            <div class="modal-footer"><button type="submit" form="add-issue-form" class="btn btn-primary" style="width: 100%;">إضافة المشكلة</button></div>
+            <div class="modal-footer"><button type="submit" form="add-issue-form" class="btn btn-primary" id="modal-submit-btn" style="width: 100%;">إضافة المشكلة</button></div>
         </div>
     </div>
     
-    <!-- Update Issue Modal -->
     <div class="modal-overlay" id="update-modal-overlay">
         <div class="side-panel" id="update-side-panel">
-            <div class="modal-header"><h2>تحديث وحل المشكلة</h2><span class="close-btn" data-target="update">&times;</span></div>
+            <div class="modal-header"><h2>حل المشكلة</h2><span class="close-btn" data-target="update">&times;</span></div>
             <div class="form-container">
                 <form id="update-issue-form">
                     <input type="hidden" id="update-issue-id">
@@ -155,9 +168,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // *** ضع إعدادات Firebase الخاصة بك هنا ***
+        // *** Firebase Config remains the same ***
         const firebaseConfig = {
             apiKey: "AIzaSyCCnPJLH1IYwUf1iv5nL52diHXXUlfosIA",
             authDomain: "issue-tracker-5d2a1.firebaseapp.com",
@@ -180,12 +193,13 @@
         const { jsPDF } = window.jspdf;
 
         // --- GLOBAL STATE & CONSTANTS ---
-        let allIssuesData = {}, filteredIssuesForExport = [], liveTimers = [], currentUser = null;
+        let allIssuesData = {}, filteredIssuesForExport = [], liveTimers = [], currentUser = null, isAdmin = false;
+        let recurringIssueGroups = {}; // No more isRecurringViewActive state
         const ACCEPTABLE_DURATION_HOURS = 8;
         const DROPDOWN_OPTIONS = {
             regions: ['شرق النيل', 'القليوبية', 'الصعيد', 'الغربية', 'المنوفية', 'الدقهلية', 'الإسكندرية'],
             departments: ['إدارة نظم المعلومات الجغرافية', 'إدارة الـIT', 'إدارة أخرى'],
-            issueTypes: ['عطل سيرفر','باك أب', 'صيانة سيرفر', 'عطل قاعدة بيانات', 'عطل أداة إدخال', 'مشكلة في الرسم', 'تحديث أداة', 'مشكلة شبكة', 'أخرى']
+            issueTypes: ['عطل سيرفر', 'صيانة سيرفر', 'عطل قاعدة بيانات', 'عطل أداة إدخال', 'مشكلة في الرسم', 'تحديث أداة', 'مشكلة شبكة', 'أخرى']
         };
 
         const DOM = {
@@ -194,22 +208,46 @@
             updateModalOverlay: document.getElementById('update-modal-overlay'), updateSidePanel: document.getElementById('update-side-panel'), closeBtns: document.querySelectorAll('.close-btn'),
             addIssueForm: document.getElementById('add-issue-form'), updateIssueForm: document.getElementById('update-issue-form'),
             printBtn: document.getElementById('print-btn'), exportPdfBtn: document.getElementById('export-pdf-btn'), exportExcelBtn: document.getElementById('export-excel-btn'),
+            adminBadgeContainer: document.getElementById('admin-badge-container'),
+            modalTitle: document.getElementById('modal-title'), modalSubmitBtn: document.getElementById('modal-submit-btn'), editIssueIdInput: document.getElementById('edit-issue-id'),
         };
         
         // --- AUTHENTICATION & INITIALIZATION ---
         function initializeAppLogic() {
             populateDropdowns();
             setupEventListeners();
-            onAuthStateChanged(auth, (user) => {
+            onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     currentUser = user;
                     DOM.userEmailSpan.textContent = user.email;
+                    await checkAdminStatus(user.uid);
                     DOM.container.style.opacity = '1';
                     listenForIssues();
                 } else { window.location.href = 'login.html'; }
             });
         }
         initializeAppLogic();
+
+        async function checkAdminStatus(uid) {
+            const userRoleRef = ref(database, `users/${uid}`);
+            onValue(userRoleRef, (snapshot) => {
+                isAdmin = snapshot.exists() && snapshot.val() === 'admin';
+                DOM.adminBadgeContainer.innerHTML = isAdmin ? `<span class="admin-badge">مدير</span>` : '';
+                
+                // NEW APPROACH: Dynamically add/remove the filter option
+                const recurringOption = DOM.filterStatus.querySelector('option[value="recurring"]');
+                if (isAdmin && !recurringOption) {
+                    const option = document.createElement('option');
+                    option.value = 'recurring';
+                    option.textContent = 'المشاكل المتكررة';
+                    DOM.filterStatus.appendChild(option);
+                } else if (!isAdmin && recurringOption) {
+                    DOM.filterStatus.removeChild(recurringOption);
+                }
+                
+                renderTable();
+            }, { onlyOnce: true });
+        }
 
         function populateDropdowns() {
             const createOptions = (arr) => arr.map(item => `<option value="${item}">${item}</option>`).join('');
@@ -226,7 +264,34 @@
             }, { error: (err) => console.error(err) });
         }
 
-        // --- DYNAMIC RENDERING ---
+        // --- NEW APPROACH: Dedicated function for all filtering logic ---
+        function getFilteredIssues() {
+            let issuesArray = Object.entries(allIssuesData).map(([key, value]) => ({ key, ...value }));
+            const filterStatusValue = DOM.filterStatus.value;
+            const filterRegionValue = DOM.filterRegion.value;
+
+            // Handle the recurring filter separately
+            if (filterStatusValue === 'recurring' && isAdmin) {
+                const recurringKeys = new Set(Object.values(recurringIssueGroups).flat());
+                return issuesArray.filter(issue =>
+                    recurringKeys.has(issue.key) &&
+                    (filterRegionValue === 'all' || issue.region === filterRegionValue)
+                );
+            }
+
+            // Handle standard filters
+            return issuesArray.filter(issue => {
+                const passesRegion = filterRegionValue === 'all' || issue.region === filterRegionValue;
+                const passesStatus = filterStatusValue === 'all' ? true :
+                    (filterStatusValue === 'overdue' ?
+                        (issue.status === 'جاري المتابعة' && (calculateWorkingHoursDuration(issue.startTime).totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) :
+                        issue.status === filterStatusValue
+                    );
+                return passesRegion && passesStatus;
+            });
+        }
+        
+        // --- DYNAMIC RENDERING (Simplified) ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -235,39 +300,113 @@
                 }
             });
         }, { threshold: 0.1 });
-
+        
         function renderTable() {
             liveTimers.forEach(clearInterval);
             liveTimers = [];
             DOM.issuesTableBody.innerHTML = '';
-            let issuesArray = Object.entries(allIssuesData).map(([key, value]) => ({ key, ...value }));
-            issuesArray.sort((a, b) => dayjs(b.startTime).unix() - dayjs(a.startTime).unix());
-            const filteredIssues = issuesArray.filter(issue => (DOM.filterRegion.value === 'all' || issue.region === DOM.filterRegion.value) && (DOM.filterStatus.value === 'all' ? true : (DOM.filterStatus.value === 'overdue' ? (issue.status === 'جاري المتابعة' && (calculateWorkingHoursDuration(issue.startTime).totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) : issue.status === DOM.filterStatus.value)));
-            filteredIssuesForExport = filteredIssues;
-            if (filteredIssues.length === 0) {
-                DOM.issuesTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 40px;">${Object.keys(allIssuesData).length === 0 ? 'لا توجد مشاكل مسجلة حالياً. انقر على "إضافة مشكلة جديدة" للبدء.' : 'لا توجد نتائج تطابق الفلترة.'}</td></tr>`;
-                updateStats({ total: 0, pending: 0, resolved: 0, overdue: 0 }); return;
+            
+            if (isAdmin) {
+                findAndGroupRecurringIssues();
             }
-            let stats = { total: filteredIssues.length, pending: 0, resolved: 0, overdue: 0 };
-            filteredIssues.forEach((issue, index) => {
-                const duration = calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime);
+            
+            const finalFilteredIssues = getFilteredIssues();
+            finalFilteredIssues.sort((a, b) => dayjs(b.startTime).unix() - dayjs(a.startTime).unix());
+            filteredIssuesForExport = finalFilteredIssues;
+
+            if (finalFilteredIssues.length === 0) {
+                let message = DOM.filterStatus.value === 'recurring' ? 'لا توجد مشاكل متكررة تطابق البحث.' : 'لا توجد نتائج تطابق الفلترة.';
+                if (Object.keys(allIssuesData).length === 0) message = 'لا توجد مشاكل مسجلة حالياً.';
+                DOM.issuesTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 40px;">${message}</td></tr>`;
+                updateStats({ total: 0, pending: 0, resolved: 0, overdue: 0 });
+                return;
+            }
+
+            const recurringKeys = new Set(Object.values(recurringIssueGroups).flat());
+            const stats = { total: finalFilteredIssues.length, pending: 0, resolved: 0, overdue: 0 };
+
+            finalFilteredIssues.forEach((issue, index) => {
                 let isOverdue = false;
-                if (issue.status === 'جاري المتابعة') { stats.pending++; if ((duration.totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) { isOverdue = true; stats.overdue++; } } else { stats.resolved++; }
+                if (issue.status === 'جاري المتابعة') {
+                    stats.pending++;
+                    if ((calculateWorkingHoursDuration(issue.startTime).totalMinutes / 60) > ACCEPTABLE_DURATION_HOURS) {
+                        isOverdue = true;
+                        stats.overdue++;
+                    }
+                } else {
+                    stats.resolved++;
+                }
+
+                const isRecurring = recurringKeys.has(issue.key);
+                
                 const statusClass = `status-${issue.status === 'تم الحل' ? 'resolved' : (isOverdue ? 'overdue' : 'pending')}`;
                 const statusText = isOverdue ? 'متأخرة' : issue.status;
                 const durationCellId = `duration-${issue.key}`;
+
+                const adminActions = isAdmin ? `
+                    <button class="edit-btn" data-key="${issue.key}" title="تعديل"><i data-feather="edit-2" style="width:18px;"></i></button>
+                    <button class="delete-btn" data-key="${issue.key}" title="حذف"><i data-feather="trash-2" style="width:18px;"></i></button>
+                ` : '';
+
                 const tr = document.createElement('tr');
                 tr.classList.add('reveal');
+                if (isAdmin && isRecurring) {
+                    tr.classList.add('recurring-highlight');
+                }
                 tr.style.transitionDelay = `${index * 50}ms`;
-                tr.innerHTML = `<td>${issue.region}</td><td>${issue.issueType}</td><td>${issue.affectedTool}</td><td>${issue.department}</td><td><span class="status-indicator ${statusClass}">${statusText}</span></td><td>${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}</td><td id="${durationCellId}">${formatDuration(duration)}</td><td><button class="btn btn-secondary update-btn" data-key="${issue.key}">تحديث</button></td>`;
+                tr.innerHTML = `
+                    <td>${issue.region}${isAdmin && issue.createdByEmail ? `<div class="user-meta-info">بواسطة: ${issue.createdByEmail}</div>` : ''}</td>
+                    <td>${issue.issueType}</td><td>${issue.affectedTool}</td><td>${issue.department}</td>
+                    <td><span class="status-indicator ${statusClass}">${statusText}</span>${issue.status === 'تم الحل' && isAdmin && issue.resolvedByEmail ? `<div class="user-meta-info">بواسطة: ${issue.resolvedByEmail}</div>` : ''}</td>
+                    <td>${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}</td>
+                    <td id="${durationCellId}">${formatDuration(calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime))}</td>
+                    <td class="action-btn-group">
+                        ${issue.status !== 'تم الحل' ? `<button class="btn btn-secondary resolve-btn" data-key="${issue.key}" style="padding: 5px 15px;">حل المشكلة</button>` : ''}
+                        ${adminActions}
+                    </td>`;
                 DOM.issuesTableBody.appendChild(tr);
                 observer.observe(tr);
-                if (issue.status === 'جاري المتابعة') { liveTimers.push(setInterval(() => { const cell = document.getElementById(durationCellId); if(cell) cell.textContent = formatDuration(calculateWorkingHoursDuration(issue.startTime)); }, 60000)); }
+
+                if (issue.status === 'جاري المتابعة') {
+                    liveTimers.push(setInterval(() => {
+                        const cell = document.getElementById(durationCellId);
+                        if (cell) cell.textContent = formatDuration(calculateWorkingHoursDuration(issue.startTime));
+                    }, 60000));
+                }
             });
+
             updateStats(stats);
+            feather.replace();
         }
         
-        // --- CORE LOGIC (DURATION, STATS, FORMS) ---
+        // --- CORE LOGIC ---
+        function findSimilarIssues(currentIssue) {
+            const resolvedIssues = Object.values(allIssuesData).filter(issue => 
+                issue.status === 'تم الحل' &&
+                issue.region === currentIssue.region &&
+                issue.issueType === currentIssue.issueType &&
+                issue.affectedTool.trim().toLowerCase() === currentIssue.affectedTool.trim().toLowerCase()
+            );
+            resolvedIssues.sort((a, b) => dayjs(b.resolutionTime).unix() - dayjs(a.resolutionTime).unix());
+            return resolvedIssues;
+        }
+
+        function findAndGroupRecurringIssues() {
+            const groups = {};
+            for (const key in allIssuesData) {
+                const issue = allIssuesData[key];
+                if (!issue.region || !issue.issueType || !issue.affectedTool) continue;
+                const compositeKey = `${issue.region}|${issue.issueType}|${issue.affectedTool.trim().toLowerCase()}`;
+                if (!groups[compositeKey]) {
+                    groups[compositeKey] = [];
+                }
+                groups[compositeKey].push(key);
+            }
+            recurringIssueGroups = Object.fromEntries(
+                Object.entries(groups).filter(([key, value]) => value.length > 1)
+            );
+        }
+
         function calculateWorkingHoursDuration(startStr, endStr) {
             let start = dayjs(startStr);
             let end = endStr ? dayjs(endStr) : dayjs();
@@ -313,11 +452,22 @@
         function setupEventListeners() {
             DOM.logoutBtn.addEventListener('click', () => signOut(auth));
             [DOM.filterRegion, DOM.filterStatus].forEach(el => el.addEventListener('change', renderTable));
-            DOM.addIssueBtn.addEventListener('click', () => { DOM.addIssueForm.reset(); DOM.addModalOverlay.classList.add('active'); DOM.addSidePanel.classList.add('active'); DOM.addIssueForm.elements['start-time'].value = dayjs().format('YYYY-MM-DDTHH:mm'); });
-            DOM.closeBtns.forEach(btn => btn.addEventListener('click', (e) => { const target = e.target.dataset.target; document.getElementById(`${target}-modal-overlay`).classList.remove('active'); document.getElementById(`${target}-side-panel`).classList.remove('active'); }));
-            DOM.addIssueForm.addEventListener('submit', handleAddIssue);
-            DOM.updateIssueForm.addEventListener('submit', handleUpdateIssue);
-            DOM.issuesTableBody.addEventListener('click', (e) => { if (e.target.classList.contains('update-btn')) openUpdateModal(e.target.dataset.key); });
+            DOM.addIssueBtn.addEventListener('click', openAddModal);
+            DOM.closeBtns.forEach(btn => btn.addEventListener('click', (e) => { 
+                const target = e.target.dataset.target; 
+                document.getElementById(`${target}-modal-overlay`).classList.remove('active'); 
+                document.getElementById(`${target}-side-panel`).classList.remove('active'); 
+            }));
+            DOM.addIssueForm.addEventListener('submit', handleAddOrEditIssue);
+            DOM.updateIssueForm.addEventListener('submit', handleResolveIssue);
+            DOM.issuesTableBody.addEventListener('click', (e) => { 
+                const button = e.target.closest('button');
+                if (!button) return;
+                const key = button.dataset.key;
+                if (button.classList.contains('resolve-btn')) openResolveModal(key);
+                if (isAdmin && button.classList.contains('edit-btn')) openEditModal(key);
+                if (isAdmin && button.classList.contains('delete-btn')) handleDeleteIssue(key);
+            });
             DOM.printBtn.addEventListener('click', () => window.print());
             DOM.exportPdfBtn.addEventListener('click', exportPDF);
             DOM.exportExcelBtn.addEventListener('click', exportExcel);
@@ -328,20 +478,94 @@
             form.querySelectorAll('[required]').forEach(input => { input.classList.remove('invalid'); if (!input.value) { isValid = false; input.classList.add('invalid'); } });
             return isValid;
         }
-
-        function handleAddIssue(e) {
+        
+        async function handleAddOrEditIssue(e) {
             e.preventDefault();
             if (!validateForm(DOM.addIssueForm)) return;
+            DOM.modalSubmitBtn.disabled = true;
+
             const form = e.target;
-            push(issuesRef, {
+            const issueId = form.elements['edit-issue-id'].value;
+            const issueData = {
                 region: form.elements.region.value, department: form.elements.department.value,
                 issueType: form.elements['issue-type'].value, affectedTool: form.elements['affected-tool'].value,
                 issueDetails: form.elements['issue-details'].value, startTime: form.elements['start-time'].value,
-                status: 'جاري المتابعة', createdBy: currentUser.uid, createdAt: new Date().toISOString(),
-            }).then(() => { DOM.addModalOverlay.classList.remove('active'); DOM.addSidePanel.classList.remove('active'); });
+            };
+
+            if (!issueId) {
+                const similarIssues = findSimilarIssues(issueData);
+                if (similarIssues.length > 0) {
+                    const mostRecentSimilar = similarIssues[0];
+                    if (confirm(`تحذير: قد تكون هذه المشكلة متكررة.\n\nتم حل مشكلة مشابهة سابقاً بتاريخ: ${dayjs(mostRecentSimilar.resolutionTime).format('YYYY/MM/DD')}\nالحل المطبق كان: "${mostRecentSimilar.resolutionNotes || 'لا توجد ملاحظات'}"\n\nهل تريد المتابعة في إنشاء هذه المشكلة الجديدة؟`)) {
+                        await saveNewIssue(issueData);
+                    } else {
+                        DOM.modalSubmitBtn.disabled = false;
+                        return;
+                    }
+                } else {
+                    await saveNewIssue(issueData);
+                }
+            } else {
+                issueData.lastModifiedBy = currentUser.uid;
+                issueData.lastModifiedByEmail = currentUser.email;
+                issueData.lastModifiedAt = new Date().toISOString();
+                await update(ref(database, 'issues/' + issueId), issueData);
+                closeAddModal();
+            }
+            DOM.modalSubmitBtn.disabled = false;
         }
-        
-        function openUpdateModal(issueId) {
+
+        async function saveNewIssue(issueData) {
+            issueData.status = 'جاري المتابعة';
+            issueData.createdBy = currentUser.uid;
+            issueData.createdByEmail = currentUser.email;
+            issueData.createdAt = new Date().toISOString();
+            await push(issuesRef, issueData);
+            closeAddModal();
+        }
+
+        function closeAddModal() {
+            DOM.addModalOverlay.classList.remove('active');
+            DOM.addSidePanel.classList.remove('active');
+        }
+
+        function openAddModal() {
+            DOM.addIssueForm.reset();
+            DOM.editIssueIdInput.value = '';
+            DOM.modalTitle.textContent = 'تسجيل مشكلة جديدة';
+            DOM.modalSubmitBtn.textContent = 'إضافة المشكلة';
+            DOM.modalSubmitBtn.style.backgroundColor = 'var(--primary-color)';
+            DOM.addIssueForm.elements['start-time'].value = dayjs().format('YYYY-MM-DDTHH:mm');
+            document.getElementById('recurring-issue-alert').style.display = 'none';
+            DOM.addModalOverlay.classList.add('active');
+            DOM.addSidePanel.classList.add('active');
+        }
+
+        function openEditModal(issueId) {
+            const data = allIssuesData[issueId];
+            DOM.addIssueForm.reset();
+            DOM.editIssueIdInput.value = issueId;
+            DOM.addIssueForm.region.value = data.region;
+            DOM.addIssueForm.department.value = data.department;
+            DOM.addIssueForm['issue-type'].value = data.issueType;
+            DOM.addIssueForm['affected-tool'].value = data.affectedTool;
+            DOM.addIssueForm['issue-details'].value = data.issueDetails;
+            DOM.addIssueForm['start-time'].value = data.startTime;
+            DOM.modalTitle.textContent = 'تعديل بيانات المشكلة';
+            DOM.modalSubmitBtn.textContent = 'حفظ التعديلات';
+            DOM.modalSubmitBtn.style.backgroundColor = 'var(--warning-color)';
+            DOM.addModalOverlay.classList.add('active');
+            DOM.addSidePanel.classList.add('active');
+        }
+
+        function handleDeleteIssue(issueId) {
+            const issueDetails = allIssuesData[issueId]?.issueDetails || 'هذه المشكلة';
+            if (confirm(`هل أنت متأكد من رغبتك في حذف المشكلة التالية نهائياً؟\n"${issueDetails}"\n\nلا يمكن التراجع عن هذا الإجراء!`)) {
+                remove(ref(database, 'issues/' + issueId));
+            }
+        }
+
+        function openResolveModal(issueId) {
             const data = allIssuesData[issueId];
             DOM.updateIssueForm.reset();
             DOM.updateIssueForm.elements['update-issue-id'].value = issueId;
@@ -351,14 +575,15 @@
             DOM.updateSidePanel.classList.add('active');
         }
         
-        function handleUpdateIssue(e) {
+        function handleResolveIssue(e) {
             e.preventDefault();
             if (!validateForm(DOM.updateIssueForm)) return;
             const form = e.target;
             const issueId = form.elements['update-issue-id'].value;
             update(ref(database, 'issues/' + issueId), {
                 status: 'تم الحل', resolutionTime: form.elements['resolution-time'].value,
-                resolutionNotes: form.elements['resolution-notes'].value, resolvedBy: currentUser.uid
+                resolutionNotes: form.elements['resolution-notes'].value,
+                resolvedBy: currentUser.uid, resolvedByEmail: currentUser.email
             }).then(() => { DOM.updateModalOverlay.classList.remove('active'); DOM.updateSidePanel.classList.remove('active'); });
         }
         
@@ -378,16 +603,21 @@
         }
         
         function exportExcel() {
+            const isRecurringReport = DOM.filterStatus.value === 'recurring';
+            const reportTitle = isRecurringReport ? "Recurring_Issues_Report" : "Issues_Report";
+            
             const data = filteredIssuesForExport.map(issue => ({
                 'المنطقة': issue.region, 'نوع المشكلة': issue.issueType, 'الأداة المتأثرة': issue.affectedTool, 'الإدارة المسؤولة': issue.department, 'الحالة': issue.status,
                 'وقت البدء': dayjs(issue.startTime).format('YYYY-MM-DD HH:mm'),
                 'وقت الحل': issue.resolutionTime ? dayjs(issue.resolutionTime).format('YYYY-MM-DD HH:mm') : 'لم تحل بعد',
-                'مدة العمل (بالساعات)': (calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime).totalMinutes / 60).toFixed(2)
+                'مدة العمل (بالساعات)': (calculateWorkingHoursDuration(issue.startTime, issue.resolutionTime).totalMinutes / 60).toFixed(2),
+                'تم الإنشاء بواسطة': issue.createdByEmail || 'غير معروف',
+                'تم الحل بواسطة': issue.resolvedByEmail || 'لم تحل بعد',
             }));
             const worksheet = XLSX.utils.json_to_sheet(data);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Issues");
-            XLSX.writeFile(workbook, `report-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+            XLSX.writeFile(workbook, `${reportTitle}-${dayjs().format('YYYY-MM-DD')}.xlsx`);
         }
     </script>
 </body>
