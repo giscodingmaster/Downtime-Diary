@@ -3,681 +3,1071 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام متابعة المشاكل التقنية | الإصدار الذكي</title>
-    
+    <title>نظام متابعة المشاكل التقنية | الإصدار الاحترافي</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/customParseFormat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isBetween.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/relativeTime.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/locale/ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         :root {
-            --primary-color: #5D5FEF;
-            --primary-light: #8364e8;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --bg-color: #f4f7fe;
-            --bg-light: #ffffff;
-            --text-dark: #212529;
-            --text-light: #6c757d;
-            --font-family: 'Tajawal', sans-serif;
-            --border-radius-lg: 16px;
-            --border-radius-md: 10px;
-            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+            --ink: #1a1c2e;
+            --ink-soft: #3d3f5c;
+            --ink-muted: #7b7d99;
+            --surface: #f5f4f0;
+            --surface-card: #ffffff;
+            --surface-hover: #f0eff9;
+            --accent: #2d2fa8;
+            --accent-light: #4547d4;
+            --accent-glow: rgba(45,47,168,0.12);
+            --gold: #c9922b;
+            --gold-light: #f5d98a;
+            --danger: #c0392b;
+            --danger-soft: rgba(192,57,43,0.1);
+            --success: #1a7f5a;
+            --success-soft: rgba(26,127,90,0.1);
+            --warning: #d68910;
+            --warning-soft: rgba(214,137,16,0.1);
+            --border: rgba(26,28,46,0.1);
+            --shadow-sm: 0 2px 8px rgba(26,28,46,0.06);
+            --shadow-md: 0 8px 30px rgba(26,28,46,0.1);
+            --shadow-lg: 0 20px 60px rgba(26,28,46,0.15);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --font-ui: 'Cairo', sans-serif;
+            --font-doc: 'Amiri', serif;
+            --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-dark); margin: 0; direction: rtl; text-align: right; line-height: 1.7; overflow-x: hidden; }
-        
-        .container { display: grid; grid-template-rows: auto auto 1fr; gap: 25px; max-width: 1600px; margin: 0 auto; padding: 25px; opacity: 0; transition: opacity 0.5s ease; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:var(--font-ui);background-color:var(--surface);background-image:radial-gradient(ellipse 80% 50% at 10% 0%,rgba(45,47,168,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 90% 100%,rgba(201,146,43,0.06) 0%,transparent 60%);background-attachment:fixed;color:var(--ink);direction:rtl;text-align:right;line-height:1.7;min-height:100vh;}
 
-        header { background: var(--gradient-primary); color: white; padding: 25px 35px; border-radius: var(--border-radius-lg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 10px 30px rgba(93, 95, 239, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); }
-        header h1 { font-size: 1.8em; margin: 0; font-weight: 800; }
-        header p { margin: 5px 0 0 0; opacity: 0.9; font-weight: 500; }
+        .app-shell{max-width:1600px;margin:0 auto;padding:28px;display:grid;gap:24px;grid-template-rows:auto auto auto 1fr;opacity:0;transition:opacity 0.5s ease;}
+        .app-shell.ready{opacity:1;}
 
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .user-info .admin-badge { background: var(--warning-color); color: var(--text-dark); padding: 4px 14px; border-radius: 20px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 10px rgba(255, 193, 7, 0.4); }
-        
-        .btn { padding: 10px 22px; border: 1px solid transparent; border-radius: var(--border-radius-md); cursor: pointer; font-family: var(--font-family); font-size: 1em; font-weight: 700; transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .btn-primary { background: var(--gradient-primary); color: #fff; }
-        .btn-secondary { background-color: var(--bg-light); color: var(--primary-color); border-color: #e9ecef; }
-        .btn-smart { background: linear-gradient(135deg, #20c997 0%, #198754 100%); color: white; box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3); border: none; }
-        
-        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; }
-        .stat-card { background-color: var(--bg-light); padding: 25px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); text-align: right; border-bottom: 4px solid; transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .stat-card h3 { margin: 0 0 10px 0; font-size: 1.1em; color: var(--text-light); font-weight: 500; }
-        .stat-card .count { font-size: 2.4em; font-weight: 800; }
-        
-        #total-card { border-color: var(--primary-color); } #total-card .count { color: var(--primary-color); }
-        #pending-card { border-color: var(--warning-color); } #pending-card .count { color: var(--warning-color); }
-        #resolved-card { border-color: var(--success-color); } #resolved-card .count { color: var(--success-color); }
-        #overdue-card { border-color: var(--danger-color); } #overdue-card .count { color: var(--danger-color); }
-        
-        .actions-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 25px; padding: 20px; background: var(--bg-light); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-        .table-container { background-color: var(--bg-light); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
-        
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 18px 20px; text-align: right; border-bottom: 1px solid #f0f3f9; vertical-align: middle; }
-        th { background-color: #fcfdff; font-weight: 700; color: var(--text-light); font-size: 0.95em; }
-        
-        tr { transition: background-color 0.2s ease-in-out; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f8faff; }
-        tr.reveal { opacity: 0; transform: translateY(15px); transition: opacity 0.5s ease, transform 0.5s ease; }
-        tr.revealed { opacity: 1; transform: translateY(0); }
-        
-        /* Table Detail expansion for better readability */
-        .issue-desc { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--text-light); font-size: 0.9em; }
-        .issue-desc:hover { white-space: normal; overflow: visible; background: #fff; padding: 10px; border-radius: 8px; box-shadow: var(--shadow-md); position: absolute; z-index: 10; width: 300px; border: 1px solid var(--border-color); color: var(--text-dark); }
+        /* HEADER */
+        .app-header{background:var(--ink);border-radius:var(--radius);padding:24px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden;}
+        .app-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 100% 50%,rgba(45,47,168,0.4) 0%,transparent 70%),radial-gradient(ellipse 30% 80% at 0% 50%,rgba(201,146,43,0.15) 0%,transparent 60%);pointer-events:none;}
+        .header-brand{position:relative;z-index:1;}
+        .header-brand h1{font-size:1.65em;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+        .header-brand p{font-size:0.88em;color:rgba(255,255,255,0.55);margin-top:3px;}
+        .header-brand .system-badge{display:inline-block;background:var(--gold);color:var(--ink);font-size:0.7em;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+        .header-user{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+        .user-avatar{width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.1em;border:2px solid rgba(255,255,255,0.2);}
+        .user-meta{text-align:right;}
+        .user-meta .user-email-txt{color:rgba(255,255,255,0.8);font-size:0.85em;}
+        .user-meta .admin-badge{display:inline-block;background:var(--gold);color:var(--ink);font-size:0.72em;font-weight:700;padding:1px 8px;border-radius:10px;}
+        .btn-logout{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-sm);padding:8px 18px;cursor:pointer;font-family:var(--font-ui);font-size:0.85em;font-weight:600;transition:var(--transition);}
+        .btn-logout:hover{background:rgba(255,255,255,0.18);color:#fff;}
 
-        .status-indicator { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.85em; text-align: center; display: inline-block; }
-        .status-pending { background-color: rgba(255, 193, 7, 0.15); color: #b08200; border: 1px solid rgba(255, 193, 7, 0.3); }
-        .status-resolved { background-color: rgba(25, 135, 84, 0.1); color: var(--success-color); border: 1px solid rgba(25, 135, 84, 0.3); }
-        .status-overdue { background-color: rgba(220, 53, 69, 0.1); color: var(--danger-color); border: 1px solid rgba(220, 53, 69, 0.3); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
-        
-        .action-btn-group button { background: none; border: none; cursor: pointer; padding: 6px; color: #adb5bd; transition: all 0.2s; border-radius: 6px; margin: 0 2px; } 
-        .action-btn-group button:hover { background: #f0f3f9; transform: translateY(-2px); }
-        .action-btn-group .delete-btn:hover { color: var(--danger-color); background: rgba(220,53,69,0.1); }
-        .action-btn-group .edit-btn:hover { color: var(--primary-color); background: rgba(93,95,239,0.1); }
-        .action-btn-group .doc-btn:hover { color: var(--success-color); background: rgba(25,135,84,0.1); }
-        
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(4px); }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        
-        .side-panel { position: fixed; top: 0; left: 0; transform: translateX(-100%); width: 100%; max-width: 600px; height: 100%; background: rgba(255, 255, 255, 0.98); box-shadow: 5px 0 30px rgba(0, 0, 0, 0.1); z-index: 1001; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
-        .side-panel.active { transform: translateX(0); }
-        
-        .modal-header { padding: 30px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f3f9; background: #fafbfc; }
-        .modal-header h2 { color: var(--text-dark); font-size: 1.5em; margin: 0; font-weight: 800; }
-        .close-btn { cursor: pointer; font-size: 2em; line-height: 1; color: var(--text-light); transition: transform 0.2s; background: none; border: none; }
-        .close-btn:hover { transform: rotate(90deg); color: var(--danger-color); }
+        /* STATS */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+        .stat-card{background:var(--surface-card);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;border:1px solid var(--border);transition:var(--transition);position:relative;overflow:hidden;}
+        .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+        .stat-card::after{content:'';position:absolute;bottom:0;right:0;width:60px;height:60px;border-radius:50%;opacity:0.06;transform:translate(20px,20px);}
+        .stat-icon{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .stat-icon svg{width:22px;height:22px;}
+        .stat-info .label{font-size:0.82em;color:var(--ink-muted);font-weight:500;}
+        .stat-info .value{font-size:2.2em;font-weight:800;line-height:1.1;margin-top:2px;}
+        #stat-total .stat-icon{background:rgba(45,47,168,0.1);color:var(--accent);}#stat-total .value{color:var(--accent);}#stat-total::after{background:var(--accent);}
+        #stat-pending .stat-icon{background:var(--warning-soft);color:var(--warning);}#stat-pending .value{color:var(--warning);}#stat-pending::after{background:var(--warning);}
+        #stat-resolved .stat-icon{background:var(--success-soft);color:var(--success);}#stat-resolved .value{color:var(--success);}#stat-resolved::after{background:var(--success);}
+        #stat-overdue .stat-icon{background:var(--danger-soft);color:var(--danger);}#stat-overdue .value{color:var(--danger);}#stat-overdue::after{background:var(--danger);}
 
-        .form-container { padding: 30px; overflow-y: auto; flex-grow: 1; }
-        .form-group { margin-bottom: 25px; }
-        .form-group label { display: block; margin-bottom: 10px; font-weight: 700; font-size: 0.95em; color: #334155; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: var(--border-radius-md); transition: all 0.3s; background-color: #f8fafc; font-family: var(--font-family); font-size: 1em; color: #1e293b; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-light); background-color: #fff; box-shadow: 0 0 0 4px rgba(93, 95, 239, 0.1); }
-        .modal-footer { padding: 25px 30px; border-top: 1px solid #f0f3f9; flex-shrink: 0; background-color: #fafbfc; }
+        /* ACTIONS BAR */
+        .actions-bar{background:var(--surface-card);border-radius:var(--radius);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+        .filters-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+        .filter-label{font-size:0.83em;color:var(--ink-muted);font-weight:600;}
+        .filter-select{border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 14px;font-family:var(--font-ui);font-size:0.88em;color:var(--ink);background:var(--surface);cursor:pointer;transition:var(--transition);appearance:none;padding-left:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237b7d99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 10px center;}
+        .filter-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+        .export-group{display:flex;align-items:center;gap:8px;}
 
-        /* Document/Report Modal Specifics */
-        .report-stats-highlight { background: rgba(220, 53, 69, 0.05); border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .report-stats-highlight strong { color: var(--danger-color); font-size: 1.2em; }
-        #email-preview-container { background: #fff; padding: 30px; border: 1px solid #e2e8f0; border-radius: var(--border-radius-md); font-family: 'Arial', sans-serif; line-height: 1.8; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-        
-        /* Print Logic (Hides UI, Shows specific template) */
-        .print-template { display: none; }
-        @media print {
-            body { background: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
-            body > *:not(.print-container) { display: none !important; }
-            .print-container { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 2cm; direction: rtl; font-family: 'Times New Roman', serif, Arial; color: #000; }
-            .print-template.active-print { display: block !important; }
-            .print-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-            .print-table th, .print-table td { font-size: 14px; text-align: right; padding: 10px; border: 1px solid #000; }
-            .print-table th { background-color: #f0f0f0 !important; font-weight: bold; }
-            .highlight-time { font-weight: bold; }
-            @page { size: A4; margin: 0; }
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border:1px solid transparent;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-ui);font-size:0.88em;font-weight:700;transition:var(--transition);white-space:nowrap;}
+        .btn svg{width:16px;height:16px;}
+        .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow-md);}
+        .btn:active:not(:disabled){transform:translateY(0);}
+        .btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(45,47,168,0.3);}
+        .btn-primary:hover:not(:disabled){background:var(--accent-light);}
+        .btn-ghost{background:transparent;color:var(--ink-soft);border-color:var(--border);}
+        .btn-ghost:hover:not(:disabled){background:var(--surface-hover);border-color:var(--accent);color:var(--accent);}
+        .btn-report{background:var(--gold);color:var(--ink);box-shadow:0 4px 14px rgba(201,146,43,0.3);}
+        .btn-report:hover:not(:disabled){background:#b8821f;}
+        .btn-success{background:var(--success);color:#fff;}
+        .btn-success:hover:not(:disabled){background:#166048;}
+
+        /* TABLE */
+        .table-wrapper{background:var(--surface-card);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;}
+        .table-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+        .table-header .title{font-weight:700;font-size:0.95em;color:var(--ink-soft);}
+        .table-count{background:var(--surface);color:var(--ink-muted);font-size:0.8em;padding:3px 10px;border-radius:20px;border:1px solid var(--border);}
+        table{width:100%;border-collapse:collapse;}
+        thead th{padding:14px 20px;text-align:right;font-size:0.8em;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.5px;background:#fafafa;border-bottom:1px solid var(--border);white-space:nowrap;}
+        tbody td{padding:15px 20px;border-bottom:1px solid #f5f5f7;vertical-align:middle;font-size:0.9em;}
+        tbody tr:last-child td{border-bottom:none;}
+        tbody tr{transition:background 0.15s ease;}
+        tbody tr:hover{background:#fafafe;}
+        tbody tr.reveal{opacity:0;transform:translateY(12px);transition:opacity 0.5s ease,transform 0.5s ease;}
+        tbody tr.revealed{opacity:1;transform:translateY(0);}
+        tbody tr.recurring-row{border-right:3px solid var(--warning);}
+        tbody tr.recurring-row td{background:rgba(214,137,16,0.04);}
+        .cell-meta{font-size:0.75em;color:var(--ink-muted);margin-top:3px;}
+
+        .status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:0.8em;font-weight:700;white-space:nowrap;}
+        .status-pill::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block;}
+        .pill-pending{background:var(--warning-soft);color:var(--warning);}
+        .pill-pending::before{background:var(--warning);}
+        .pill-resolved{background:var(--success-soft);color:var(--success);}
+        .pill-resolved::before{background:var(--success);}
+        .pill-overdue{background:var(--danger-soft);color:var(--danger);animation:blink 1.5s ease infinite;}
+        .pill-overdue::before{background:var(--danger);}
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.65;}}
+
+        .duration-chip{display:inline-flex;align-items:center;gap:4px;font-size:0.83em;font-weight:700;color:var(--ink-soft);}
+        .duration-chip.high{color:var(--danger);}
+        .duration-chip svg{width:13px;height:13px;opacity:0.6;}
+
+        .action-cell{display:flex;align-items:center;gap:4px;justify-content:flex-end;}
+        .icon-btn{width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-muted);transition:var(--transition);}
+        .icon-btn svg{width:15px;height:15px;}
+        .icon-btn:hover{background:var(--surface);}
+        .icon-btn.edit:hover{color:var(--accent);background:var(--accent-glow);}
+        .icon-btn.delete:hover{color:var(--danger);background:var(--danger-soft);}
+        .icon-btn.letter:hover{color:var(--gold);background:rgba(201,146,43,0.1);}
+
+        /* OVERLAY & PANEL */
+        .overlay{position:fixed;inset:0;background:rgba(26,28,46,0.45);z-index:100;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease;backdrop-filter:blur(4px);}
+        .overlay.active{opacity:1;visibility:visible;}
+        .side-panel{position:fixed;top:0;left:0;width:100%;max-width:560px;height:100%;background:var(--surface-card);z-index:101;transform:translateX(-110%);transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow-lg);}
+        .side-panel.active{transform:translateX(0);}
+        .panel-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--surface);}
+        .panel-header h2{font-size:1.2em;font-weight:800;color:var(--ink);}
+        .panel-icon{width:36px;height:36px;background:var(--accent-glow);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--accent);}
+        .panel-icon svg{width:18px;height:18px;}
+        .close-btn{width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-muted);transition:var(--transition);font-size:1.4em;line-height:1;}
+        .close-btn:hover{background:var(--surface);color:var(--ink);transform:rotate(90deg);}
+        .panel-body{padding:28px;overflow-y:auto;flex:1;}
+        .panel-footer{padding:18px 28px;border-top:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+
+        /* FORM */
+        .form-group{margin-bottom:22px;}
+        .form-group label{display:block;margin-bottom:8px;font-size:0.88em;font-weight:700;color:var(--ink-soft);}
+        .form-control{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-family:var(--font-ui);font-size:0.92em;color:var(--ink);transition:var(--transition);appearance:none;}
+        .form-control:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-glow);}
+        .form-control.invalid{border-color:var(--danger)!important;box-shadow:0 0 0 3px var(--danger-soft);}
+        textarea.form-control{resize:vertical;min-height:90px;line-height:1.6;}
+        select.form-control{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237b7d99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;padding-left:40px;}
+        .form-section-title{font-size:0.8em;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px dashed var(--border);}
+        .issue-context-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;font-size:0.88em;line-height:1.7;color:var(--ink-soft);}
+        .issue-context-box strong{color:var(--ink);}
+        .recurring-alert{display:none;background:var(--warning-soft);border:1px solid rgba(214,137,16,0.3);border-radius:var(--radius-sm);padding:14px 16px;font-size:0.88em;color:#7d5a00;margin-bottom:18px;}
+
+        /* REPORT TABS */
+        .report-tabs{display:flex;gap:8px;margin-bottom:24px;background:var(--surface);border-radius:var(--radius-sm);padding:5px;border:1px solid var(--border);}
+        .tab-btn{flex:1;padding:9px 14px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font-ui);font-size:0.85em;font-weight:700;color:var(--ink-muted);background:transparent;transition:var(--transition);}
+        .tab-btn.active{background:var(--surface-card);color:var(--ink);box-shadow:var(--shadow-sm);}
+        .tab-pane{display:none;}
+        .tab-pane.active{display:block;}
+
+        /* LETTER */
+        .letter-preview{border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;font-family:var(--font-doc);overflow:hidden;}
+        .letter-preview-header{background:var(--ink);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;}
+        .letter-preview-header .org-name{color:#fff;font-size:1em;font-weight:700;}
+        .letter-preview-header .org-sub{color:rgba(255,255,255,0.55);font-size:0.82em;margin-top:3px;}
+        .letter-preview-header .ref-block{text-align:left;}
+        .letter-preview-header .ref-num{color:var(--gold-light);font-size:0.85em;font-weight:700;}
+        .letter-preview-header .ref-date{color:rgba(255,255,255,0.5);font-size:0.78em;margin-top:3px;}
+        .letter-body{padding:24px;line-height:1.95;font-size:0.95em;color:var(--ink);}
+        .letter-body .salutation{font-weight:700;margin-bottom:14px;}
+        .letter-body p{margin-bottom:12px;}
+        .letter-issue-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.92em;}
+        .letter-issue-table th{background:#f8f8f8;border:1px solid #e0e0e0;padding:10px 14px;text-align:right;font-weight:700;font-size:0.85em;color:var(--ink-soft);width:30%;}
+        .letter-issue-table td{border:1px solid #e0e0e0;padding:10px 14px;color:var(--ink);}
+        .letter-issue-table .hours-wasted-row th{background:var(--danger-soft);color:var(--danger);}
+        .letter-issue-table .hours-wasted-row td{color:var(--danger);font-weight:700;}
+        .letter-signature{margin-top:30px;padding-top:16px;border-top:1px dashed #ddd;font-size:0.88em;color:var(--ink-muted);}
+        .letter-signature strong{color:var(--ink);display:block;margin-bottom:3px;}
+
+        /* EMAIL */
+        .email-preview{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;font-size:0.9em;}
+        .email-header-bar{background:#f5f5f5;border-bottom:1px solid #e8e8e8;padding:12px 16px;}
+        .email-field{display:flex;gap:10px;margin-bottom:6px;font-size:0.88em;}
+        .email-field:last-child{margin-bottom:0;}
+        .email-field .field-key{color:var(--ink-muted);font-weight:700;min-width:50px;}
+        .email-field .field-val{color:var(--ink);font-weight:500;}
+        .email-body-area{padding:20px;background:#fff;color:var(--ink);line-height:1.85;font-family:var(--font-doc);}
+        .email-body-area .email-greeting{font-weight:700;margin-bottom:12px;}
+        .email-body-area p{margin-bottom:10px;}
+        .email-body-area ul{margin:10px 0;padding-right:20px;}
+        .email-body-area li{margin-bottom:6px;}
+        .email-hours-highlight{background:var(--danger-soft);border:1px solid rgba(192,57,43,0.2);border-radius:6px;padding:10px 14px;margin:14px 0;font-weight:700;color:var(--danger);display:flex;align-items:center;gap:8px;font-size:0.93em;}
+        .email-hours-highlight svg{width:16px;height:16px;flex-shrink:0;}
+
+        .report-actions{display:flex;gap:10px;margin-bottom:16px;}
+        .report-actions .btn{flex:1;}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:30px;font-size:0.88em;font-weight:600;z-index:9999;box-shadow:var(--shadow-lg);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s ease;opacity:0;pointer-events:none;display:flex;align-items:center;gap:8px;}
+        .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+        .toast svg{width:16px;height:16px;color:#4ade80;}
+
+        .empty-state{text-align:center;padding:60px 40px;color:var(--ink-muted);}
+        .empty-state svg{width:48px;height:48px;opacity:0.3;margin-bottom:14px;}
+        .empty-state p{font-size:0.95em;}
+
+        .print-only{display:none;}
+        @media print{
+            body{background:#fff;}
+            body>*:not(#print-template){display:none!important;}
+            #print-template{display:block!important;position:absolute;top:0;left:0;width:100%;padding:2cm 2.5cm;font-family:'Times New Roman',serif;direction:rtl;color:#000;}
+            @page{size:A4;margin:0;}
+        }
+        @media(max-width:768px){
+            .app-shell{padding:14px;gap:14px;}
+            .stats-grid{grid-template-columns:repeat(2,1fr);}
+            .actions-bar{flex-direction:column;align-items:stretch;}
+            .side-panel{max-width:100%;}
         }
     </style>
 </head>
 <body>
+<div class="app-shell" id="app-shell">
 
-    <div class="container">
-        <header>
-            <div class="title-section">
-                <h1>نظام متابعة المشاكل التقنية</h1>
-                <p>إدارة المساحة والخرائط - لوحة التحكم الموحدة</p>
-            </div>
-            <div class="user-info">
-                <span id="admin-badge-container"></span>
-                <span id="user-email" style="font-weight: 500;"></span>
-                <button id="logout-btn" class="btn" style="background-color: rgba(0,0,0,0.15); color: #fff;"><i data-feather="log-out"></i> خروج</button>
-            </div>
-        </header>
-
-        <div class="dashboard-controls">
-            <div class="stats-cards">
-                 <div class="stat-card" id="total-card"><h3>إجمالي المشاكل</h3><p class="count" id="count-total">0</p></div>
-                 <div class="stat-card" id="pending-card"><h3>جاري المتابعة</h3><p class="count" id="count-pending">0</p></div>
-                 <div class="stat-card" id="resolved-card"><h3>تم الحل</h3><p class="count" id="count-resolved">0</p></div>
-                 <div class="stat-card" id="overdue-card"><h3>مشاكل متأخرة</h3><p class="count" id="count-overdue">0</p></div>
-            </div>
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="system-badge">إدارة المساحة والخرائط</span>
+            <h1>نظام متابعة المشاكل التقنية</h1>
+            <p>لوحة تحكم مركزية لضمان استمرارية العمليات</p>
         </div>
-        
-        <div class="table-section">
-            <div class="actions-bar">
-                <button id="add-issue-btn" class="btn btn-primary"><i data-feather="plus"></i> إضافة مشكلة جديدة</button>
-                <div class="table-filters" style="display: flex; gap: 15px; align-items: center;">
-                    <select id="filter-region" class="btn btn-secondary" style="background: #fff;"><option value="all">كل المناطق</option></select>
-                    <select id="filter-status" class="btn btn-secondary" style="background: #fff;">
-                        <option value="all">كل الحالات</option>
-                        <option value="جاري المتابعة">جاري المتابعة</option>
-                        <option value="تم الحل">تم الحل</option>
-                        <option value="overdue">متأخرة</option>
-                    </select>
-                </div>
-                <button id="generate-bulk-report-btn" class="btn btn-smart" title="إصدار تقرير شامل بالنتائج الحالية لإرساله للإدارة">
-                    <i data-feather="briefcase"></i> تقرير إداري مفصل (للمراسلات)
+        <div class="header-user">
+            <div class="user-meta">
+                <div id="admin-badge-container"></div>
+                <div class="user-email-txt" id="user-email-display"></div>
+            </div>
+            <div class="user-avatar" id="user-avatar">م</div>
+            <button class="btn-logout" id="logout-btn">خروج</button>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card" id="stat-total">
+            <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+            <div class="stat-info"><div class="label">إجمالي المشاكل</div><div class="value" id="count-total">0</div></div>
+        </div>
+        <div class="stat-card" id="stat-pending">
+            <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="stat-info"><div class="label">جاري المتابعة</div><div class="value" id="count-pending">0</div></div>
+        </div>
+        <div class="stat-card" id="stat-resolved">
+            <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="stat-info"><div class="label">تم الحل</div><div class="value" id="count-resolved">0</div></div>
+        </div>
+        <div class="stat-card" id="stat-overdue">
+            <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div class="stat-info"><div class="label">مشاكل متأخرة</div><div class="value" id="count-overdue">0</div></div>
+        </div>
+    </div>
+
+    <div class="actions-bar">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-primary" id="add-issue-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                تسجيل مشكلة جديدة
+            </button>
+        </div>
+        <div class="filters-group">
+            <span class="filter-label">المنطقة:</span>
+            <select id="filter-region" class="filter-select"><option value="all">كل المناطق</option></select>
+            <span class="filter-label">الحالة:</span>
+            <select id="filter-status" class="filter-select">
+                <option value="all">كل الحالات</option>
+                <option value="جاري المتابعة">جاري المتابعة</option>
+                <option value="تم الحل">تم الحل</option>
+                <option value="overdue">متأخرة</option>
+            </select>
+        </div>
+        <div class="export-group">
+            <button class="btn btn-ghost" id="export-excel-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Excel
+            </button>
+            <button class="btn btn-report" id="bulk-report-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                تقرير مراسلة شاملة
+            </button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <div class="table-header">
+            <span class="title">سجل المشاكل التقنية</span>
+            <span class="table-count" id="table-count">0 مشكلة</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>المنطقة</th><th>نوع المشكلة</th><th>الأداة</th><th>الإدارة</th>
+                    <th>الحالة</th><th>وقت البدء</th><th>ساعات العمل المهدرة</th><th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="issues-tbody">
+                <tr><td colspan="8"><div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p>جاري التحقق من الهوية...</p>
+                </div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PANEL: ADD/EDIT -->
+<div class="overlay" id="add-overlay"></div>
+<div class="side-panel" id="add-panel">
+    <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="panel-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <h2 id="add-panel-title">تسجيل مشكلة جديدة</h2>
+        </div>
+        <button class="close-btn" data-panel="add">&times;</button>
+    </div>
+    <div class="panel-body">
+        <form id="add-issue-form" novalidate>
+            <input type="hidden" id="edit-issue-id">
+            <div id="recurring-issue-alert" class="recurring-alert"></div>
+            <div class="form-section-title">معلومات الموقع والإدارة</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group"><label>المنطقة</label><select id="region" class="form-control" required></select></div>
+                <div class="form-group"><label>الإدارة المسؤولة</label><select id="department" class="form-control" required></select></div>
+            </div>
+            <div class="form-section-title">تفاصيل المشكلة</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group"><label>نوع المشكلة</label><select id="issue-type" class="form-control" required></select></div>
+                <div class="form-group"><label>الأداة المتأثرة</label><input type="text" id="affected-tool" class="form-control" required placeholder="مثال: GIS، خادم الملفات"></div>
+            </div>
+            <div class="form-group"><label>تفاصيل المشكلة</label><textarea id="issue-details" class="form-control" required rows="4" placeholder="اشرح المشكلة بتفصيل..."></textarea></div>
+            <div class="form-group"><label>تاريخ ووقت بداية المشكلة</label><input type="datetime-local" id="start-time" class="form-control" required></div>
+        </form>
+    </div>
+    <div class="panel-footer">
+        <button type="submit" form="add-issue-form" class="btn btn-primary" id="add-submit-btn" style="width:100%;padding:14px;">إضافة المشكلة</button>
+    </div>
+</div>
+
+<!-- PANEL: RESOLVE -->
+<div class="overlay" id="resolve-overlay"></div>
+<div class="side-panel" id="resolve-panel">
+    <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="panel-icon" style="background:var(--success-soft);color:var(--success);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h2>تسجيل حل المشكلة</h2>
+        </div>
+        <button class="close-btn" data-panel="resolve">&times;</button>
+    </div>
+    <div class="panel-body">
+        <form id="resolve-issue-form">
+            <input type="hidden" id="resolve-issue-id">
+            <div class="form-group"><label>تفاصيل المشكلة الأصلية</label><div id="original-issue-details" class="issue-context-box"></div></div>
+            <div class="form-group"><label>تاريخ ووقت الحل</label><input type="datetime-local" id="resolution-time" class="form-control" required></div>
+            <div class="form-group"><label>ملاحظات الحل (الإجراءات المتخذة)</label><textarea id="resolution-notes" class="form-control" rows="4" placeholder="صِف الحل الذي طُبِّق..."></textarea></div>
+        </form>
+    </div>
+    <div class="panel-footer">
+        <button type="submit" form="resolve-issue-form" class="btn btn-success" style="width:100%;padding:14px;">✓ تأكيد حل المشكلة</button>
+    </div>
+</div>
+
+<!-- PANEL: SINGLE ISSUE LETTER/EMAIL -->
+<div class="overlay" id="letter-overlay"></div>
+<div class="side-panel" id="letter-panel" style="max-width:640px;">
+    <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="panel-icon" style="background:rgba(201,146,43,0.1);color:var(--gold);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <h2>إصدار مراسلة رسمية</h2>
+        </div>
+        <button class="close-btn" data-panel="letter">&times;</button>
+    </div>
+    <div class="panel-body">
+        <div class="report-tabs">
+            <button class="tab-btn active" data-tab="letter-tab">خطاب رسمي</button>
+            <button class="tab-btn" data-tab="email-tab">بريد إلكتروني</button>
+        </div>
+        <div id="letter-tab" class="tab-pane active">
+            <div class="report-actions">
+                <button class="btn btn-ghost" id="print-letter-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    طباعة
+                </button>
+                <button class="btn btn-ghost" id="copy-letter-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    نسخ النص
                 </button>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>المنطقة</th><th>المشكلة والتفاصيل</th><th>الأداة</th><th>الإدارة</th><th>الحالة</th><th>وقت البدء</th><th>المدة المهدرة</th><th>الإجراءات</th></tr></thead>
-                    <tbody id="issues-table-body">
-                       <tr><td colspan="8" id="loader" style="padding: 50px; text-align:center; color: var(--text-light);">جاري جلب البيانات...</td></tr>
-                    </tbody>
-                </table>
+            <div class="letter-preview" id="letter-preview-content"></div>
+        </div>
+        <div id="email-tab" class="tab-pane">
+            <div class="report-actions">
+                <button class="btn btn-ghost" id="copy-email-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    نسخ الإيميل
+                </button>
+                <button class="btn btn-report" id="open-mail-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    فتح في البريد
+                </button>
             </div>
+            <div class="email-preview" id="email-preview-content"></div>
         </div>
     </div>
+</div>
 
-    <div class="modal-overlay" id="add-modal-overlay">
-        <div class="side-panel" id="add-side-panel">
-            <div class="modal-header"><h2 id="modal-title">تسجيل مشكلة</h2><button class="close-btn" data-target="add">&times;</button></div>
-            <div class="form-container">
-                <form id="add-issue-form" novalidate>
-                    <input type="hidden" id="edit-issue-id">
-                    <div class="form-group"><label>المنطقة</label><select id="region" required></select></div>
-                    <div class="form-group"><label>الإدارة المسؤولة</label><select id="department" required></select></div>
-                    <div class="form-group"><label>نوع المشكلة</label><select id="issue-type" required></select></div>
-                    <div class="form-group"><label>الأداة المتأثرة</label><input type="text" id="affected-tool" required></div>
-                    <div class="form-group"><label>تفاصيل المشكلة (مهم للمراسلات)</label><textarea id="issue-details" required rows="4"></textarea></div>
-                    <div class="form-group"><label>تاريخ ووقت الرصد</label><input type="datetime-local" id="start-time" required></div>
-                </form>
+<!-- PANEL: BULK REPORT -->
+<div class="overlay" id="bulk-overlay"></div>
+<div class="side-panel" id="bulk-panel" style="max-width:640px;">
+    <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="panel-icon" style="background:rgba(201,146,43,0.1);color:var(--gold);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </div>
-            <div class="modal-footer"><button type="submit" form="add-issue-form" class="btn btn-primary" id="modal-submit-btn" style="width: 100%;">حفظ البيانات</button></div>
+            <h2>تقرير مراسلة شاملة</h2>
+        </div>
+        <button class="close-btn" data-panel="bulk">&times;</button>
+    </div>
+    <div class="panel-body">
+        <div class="report-tabs">
+            <button class="tab-btn active" data-tab="bulk-letter-tab">خطاب شامل</button>
+            <button class="tab-btn" data-tab="bulk-email-tab">بريد شامل</button>
+        </div>
+        <div id="bulk-letter-tab" class="tab-pane active">
+            <div class="report-actions">
+                <button class="btn btn-ghost" id="print-bulk-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    طباعة
+                </button>
+                <button class="btn btn-ghost" id="copy-bulk-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    نسخ
+                </button>
+            </div>
+            <div class="letter-preview" id="bulk-letter-content"></div>
+        </div>
+        <div id="bulk-email-tab" class="tab-pane">
+            <div class="report-actions">
+                <button class="btn btn-ghost" id="copy-bulk-email-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    نسخ
+                </button>
+                <button class="btn btn-report" id="open-bulk-mail-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    فتح في البريد
+                </button>
+            </div>
+            <div class="email-preview" id="bulk-email-content"></div>
         </div>
     </div>
-    
-    <div class="modal-overlay" id="update-modal-overlay">
-        <div class="side-panel" id="update-side-panel">
-            <div class="modal-header"><h2>إغلاق المشكلة</h2><button class="close-btn" data-target="update">&times;</button></div>
-            <div class="form-container">
-                <form id="update-issue-form">
-                    <input type="hidden" id="update-issue-id">
-                    <div class="form-group"><label>تاريخ ووقت الحل الفعلي</label><input type="datetime-local" id="resolution-time" required></div>
-                    <div class="form-group"><label>الإجراء الذي تم اتخاذه (الحل)</label><textarea id="resolution-notes" rows="4" required></textarea></div>
-                </form>
-            </div>
-            <div class="modal-footer"><button type="submit" form="update-issue-form" class="btn btn-smart" style="width: 100%;"><i data-feather="check-circle"></i> تأكيد وإغلاق</button></div>
-        </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-msg">تم بنجاح</span>
+</div>
+
+<!-- PRINT TEMPLATE -->
+<div id="print-template" class="print-only">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:14px;margin-bottom:20px;">
+        <div><h2 style="font-size:20px;margin:0;">إدارة المساحة والخرائط</h2><p style="color:#555;margin:4px 0 0 0;">نظام متابعة المشاكل التقنية</p></div>
+        <div style="text-align:left;"><p>التاريخ: <strong id="pt-date"></strong></p><p>رقم المرجع: <strong id="pt-ref"></strong></p></div>
     </div>
-
-    <div class="modal-overlay" id="report-modal-overlay">
-        <div class="side-panel" id="report-side-panel" style="max-width: 700px;">
-            <div class="modal-header">
-                <h2 id="report-modal-title">إصدار تقرير / خطاب رسمي</h2>
-                <button class="close-btn" data-target="report">&times;</button>
-            </div>
-            <div class="form-container">
-                <div class="report-stats-highlight" id="report-wasted-time-box">
-                    <span>إجمالي وقت تعطل العمليات المحتسب:</span>
-                    <strong id="report-wasted-time-val">0 ساعة</strong>
-                </div>
-                
-                <div class="actions-bar" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 20px;">
-                    <button id="print-report-btn" class="btn btn-primary" style="flex: 1;"><i data-feather="printer"></i> طباعة خطاب رسمي (PDF)</button>
-                    <button id="copy-email-btn" class="btn btn-secondary" style="flex: 1;"><i data-feather="mail"></i> نسخ كرسالة بريد</button>
-                </div>
-                
-                <label style="font-weight: bold; color: var(--text-light); margin-bottom: 10px; display: block;">معاينة النص:</label>
-                <div id="email-preview-container">
-                    </div>
-            </div>
-        </div>
+    <div id="pt-body"></div>
+    <div style="margin-top:50px;text-align:left;border-top:1px dashed #ccc;padding-top:16px;">
+        <p><strong>مدير النظام</strong></p><p id="pt-admin"></p>
+        <p style="margin-top:20px;">التوقيع: ..................................</p>
     </div>
+</div>
 
-    <div class="print-container">
-        
-        <div id="print-template-single" class="print-template">
-            <div class="print-header">
-                <div>
-                    <h1 style="font-size: 22px; margin: 0;">إدارة المساحة والخرائط</h1>
-                    <h2 style="font-size: 16px; margin: 5px 0 0 0; color: #555;">تقرير عطل تقني طارئ</h2>
-                </div>
-                <div style="text-align: left;">
-                    <p>التاريخ: <strong id="p-single-date"></strong></p>
-                    <p>المرجع: <strong id="p-single-ref"></strong></p>
-                </div>
-            </div>
-            <hr style="border: 1px solid #000; margin: 15px 0 25px 0;">
-            
-            <h3 style="font-size: 18px; margin-bottom: 15px;">السادة المحترمين / إدارة <span id="p-single-dept"></span></h3>
-            <p>تحية طيبة وبعد،</p>
-            <p>يرجى التكرم بالعلم بأنه تم رصد مشكلة تقنية أدت إلى تعطيل جزئي للعمليات، وفيما يلي التفاصيل:</p>
-            
-            <table class="print-table" style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr><th style="width: 25%;">المنطقة / الموقع</th><td id="p-single-region"></td></tr>
-                <tr><th>نوع المشكلة</th><td id="p-single-type"></td></tr>
-                <tr><th>الأداة / النظام المتأثر</th><td id="p-single-tool"></td></tr>
-                <tr><th>وقت الرصد</th><td id="p-single-start" style="direction: ltr; text-align: right;"></td></tr>
-                <tr><th>الوقت المهدر (حتى الآن)</th><td id="p-single-wasted" class="highlight-time"></td></tr>
-            </table>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-            <h4 style="margin-bottom: 5px;">تفاصيل إضافية:</h4>
-            <div id="p-single-details" style="padding: 15px; border: 1px solid #000; min-height: 60px;"></div>
-            
-            <p style="margin-top: 25px;">برجاء التفضل باتخاذ اللازم نحو الفحص والحل لضمان عودة العمليات لطبيعتها.</p>
-            <div style="margin-top: 50px; text-align: left;">
-                <p><strong>مدير النظام</strong><br><span id="p-single-admin"></span><br>التوقيع: ........................</p>
-            </div>
-        </div>
+const firebaseConfig = {
+    apiKey: "AIzaSyCCnPJLH1IYwUf1iv5nL52diHXXUlfosIA",
+    authDomain: "issue-tracker-5d2a1.firebaseapp.com",
+    databaseURL: "https://issue-tracker-5d2a1-default-rtdb.firebaseio.com",
+    projectId: "issue-tracker-5d2a1",
+    storageBucket: "issue-tracker-5d2a1.firebasestorage.app",
+    messagingSenderId: "883603835871",
+    appId: "1:883603835871:web:f3af7423d128feafa0926a"
+};
 
-        <div id="print-template-bulk" class="print-template">
-            <div class="print-header">
-                <div>
-                    <h1 style="font-size: 22px; margin: 0;">إدارة المساحة والخرائط</h1>
-                    <h2 style="font-size: 16px; margin: 5px 0 0 0; color: #555;">تقرير مجمع بحالة الأعطال التقنية</h2>
-                </div>
-                <div style="text-align: left;">
-                    <p>تاريخ الإصدار: <strong id="p-bulk-date"></strong></p>
-                </div>
-            </div>
-            <hr style="border: 1px solid #000; margin: 15px 0 25px 0;">
-            
-            <h3 style="font-size: 18px; margin-bottom: 15px;">السادة / <span id="p-bulk-recipient">الجهات المعنية</span> المحترمين</h3>
-            <p>تحية طيبة وبعد،</p>
-            <p>نرفق لسيادتكم تقريراً مجمعاً بحالة المشاكل والأعطال التقنية المسجلة على النظام بناءً على المحددات الحالية. يتضمن التقرير عدد (<strong id="p-bulk-count">0</strong>) مشكلة.</p>
-            
-            <div style="border: 2px solid #000; padding: 10px; margin: 20px 0; background: #f9f9f9; text-align: center;">
-                <span style="font-size: 16px;">إجمالي ساعات تعطل العمليات المقدرة: </span>
-                <strong id="p-bulk-wasted-total" style="font-size: 18px;">0 ساعة</strong>
-            </div>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+const issuesRef = ref(database, 'issues');
 
-            <table class="print-table" style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <thead>
-                    <tr><th>المنطقة</th><th>نوع العطل</th><th>النظام المتأثر</th><th>الحالة</th><th>الوقت المهدر</th></tr>
-                </thead>
-                <tbody id="p-bulk-table-body">
-                    </tbody>
-            </table>
-            
-            <p style="margin-top: 25px;">برجاء الإيعاز لمن يلزم بالمتابعة واتخاذ الإجراءات التصحيحية اللازمة لتقليل أوقات التعطل.</p>
-            <div style="margin-top: 50px; text-align: left;">
-                <p><strong>مدير النظام</strong><br><span id="p-bulk-admin"></span><br>التوقيع: ........................</p>
-            </div>
-        </div>
+dayjs.extend(dayjs_plugin_customParseFormat);
+dayjs.extend(dayjs_plugin_isBetween);
+dayjs.extend(dayjs_plugin_relativeTime);
+dayjs.locale('ar');
 
-    </div>
+let allIssuesData = {}, filteredIssuesForExport = [], liveTimers = [], currentUser = null, isAdmin = false;
+let recurringIssueGroups = {}, currentLetterIssueId = null;
+const ACCEPTABLE_DURATION_HOURS = 8;
+const DROPDOWN_OPTIONS = {
+    regions: ['شرق النيل','القليوبية','الصعيد','الغربية','المنوفية','الدقهلية','الإسكندرية'],
+    departments: ['إدارة نظم المعلومات الجغرافية','إدارة الـIT','إدارة أخرى'],
+    issueTypes: ['عطل سيرفر','صيانة سيرفر','عطل قاعدة بيانات','عطل أداة إدخال','مشكلة في الرسم','تحديث أداة','مشكلة شبكة','أخرى']
+};
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+const $ = id => document.getElementById(id);
+const addForm = $('add-issue-form');
+const resolveForm = $('resolve-issue-form');
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCCnPJLH1IYwUf1iv5nL52diHXXUlfosIA",
-            authDomain: "issue-tracker-5d2a1.firebaseapp.com",
-            databaseURL: "https://issue-tracker-5d2a1-default-rtdb.firebaseio.com",
-            projectId: "issue-tracker-5d2a1"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-        const issuesRef = ref(database, 'issues');
-        
-        dayjs.extend(dayjs_plugin_customParseFormat);
-        dayjs.extend(dayjs_plugin_relativeTime);
-        dayjs.locale('ar');
-
-        let allIssuesData = {}, filteredIssuesForExport = [], liveTimers = [], currentUser = null, isAdmin = false;
-
-        const DOM = {
-            issuesTableBody: document.getElementById('issues-table-body'),
-            filterRegion: document.getElementById('filter-region'), 
-            filterStatus: document.getElementById('filter-status'),
-            closeBtns: document.querySelectorAll('.close-btn'),
-            addIssueForm: document.getElementById('add-issue-form'), 
-            updateIssueForm: document.getElementById('update-issue-form'),
-            reportModalOverlay: document.getElementById('report-modal-overlay'),
-            reportSidePanel: document.getElementById('report-side-panel'),
-        };
-
-        // Initialize Options
-        const regions = ['شرق النيل', 'القليوبية', 'الصعيد', 'الغربية', 'المنوفية', 'الدقهلية', 'الإسكندرية'];
-        const depts = ['إدارة نظم المعلومات الجغرافية', 'إدارة الدعم الفني (IT)', 'إدارة الشبكات'];
-        const types = ['عطل خادم (Server)', 'مشكلة قاعدة بيانات GIS', 'عطل أداة رسم/إدخال', 'انقطاع شبكة', 'أخرى'];
-
-        function init() {
-            DOM.addIssueForm.region.innerHTML = regions.map(r => `<option value="${r}">${r}</option>`).join('');
-            DOM.filterRegion.innerHTML += regions.map(r => `<option value="${r}">${r}</option>`).join('');
-            DOM.addIssueForm.department.innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
-            DOM.addIssueForm['issue-type'].innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
-            
-            setupEvents();
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('user-email').textContent = user.email;
-                    checkAdmin(user.uid);
-                    document.querySelector('.container').style.opacity = '1';
-                    
-                    onValue(issuesRef, (snapshot) => {
-                        allIssuesData = snapshot.val() || {};
-                        renderTable();
-                    });
-                } else { window.location.href = 'login.html'; }
-            });
+// ── Calculations ──
+function calcDur(startStr, endStr) {
+    let s = dayjs(startStr), e = endStr ? dayjs(endStr) : dayjs();
+    if (!s.isValid() || !e.isValid() || s.isAfter(e)) return { totalMinutes: 0 };
+    let tm = 0, cur = s.clone().startOf('day');
+    while (cur.isBefore(e.startOf('day')) || cur.isSame(e.startOf('day'))) {
+        const dow = cur.day();
+        if (dow >= 0 && dow <= 4) {
+            const ws = cur.hour(8).minute(0), we = cur.hour(16).minute(0);
+            const is = s.isAfter(ws) ? s : ws, ie = e.isBefore(we) ? e : we;
+            if (ie.isAfter(is)) tm += ie.diff(is, 'minute');
         }
+        cur = cur.add(1, 'day');
+    }
+    return { totalMinutes: tm };
+}
 
-        function checkAdmin(uid) {
-            onValue(ref(database, `users/${uid}`), (snap) => {
-                isAdmin = snap.exists() && snap.val() === 'admin';
-                document.getElementById('admin-badge-container').innerHTML = isAdmin ? `<span class="admin-badge">صلاحية مدير</span>` : '';
-                renderTable();
-            }, { onlyOnce: true });
-        }
+function fmtDur({ totalMinutes: tm }) {
+    if (tm < 1) return 'لحظات';
+    const d = Math.floor(tm / 480), r = tm % 480, h = Math.floor(r / 60), m = Math.round(r % 60);
+    let p = [];
+    if (d > 0) p.push(`${d} ${d > 1 ? 'أيام' : 'يوم'}`);
+    if (h > 0) p.push(`${h} ساعة`);
+    if (m > 0 && d === 0) p.push(`${m} دقيقة`);
+    return p.length ? p.join(' و ') : 'أقل من ساعة';
+}
 
-        function calculateWastedMinutes(startStr, endStr) {
-            let start = dayjs(startStr);
-            let end = endStr ? dayjs(endStr) : dayjs();
-            if (!start.isValid() || !end.isValid() || start.isAfter(end)) return 0;
-            
-            // Simplified logic: Assuming 24/7 impact for critical server/GIS infrastructure
-            // If you want strict 8-hour workdays only, implement the while loop filtering weekends.
-            return end.diff(start, 'minute'); 
-        }
+// ── Toast ──
+function toast(msg = 'تم بنجاح') {
+    $('toast-msg').textContent = msg;
+    const t = $('toast'); t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+function copyText(text) { navigator.clipboard.writeText(text).then(() => toast('تم النسخ بنجاح ✓')); }
 
-        function formatTime(totalMins) {
-            if (totalMins < 60) return `${totalMins} دقيقة`;
-            const h = Math.floor(totalMins / 60);
-            const m = totalMins % 60;
-            return m > 0 ? `${h} ساعة و ${m} دقيقة` : `${h} ساعة`;
-        }
+// ── Panels ──
+function openPanel(n) { $(`${n}-overlay`).classList.add('active'); $(`${n}-panel`).classList.add('active'); }
+function closePanel(n) { $(`${n}-overlay`).classList.remove('active'); $(`${n}-panel`).classList.remove('active'); }
+document.querySelectorAll('.close-btn[data-panel]').forEach(b => b.addEventListener('click', () => closePanel(b.dataset.panel)));
+['add','resolve','letter','bulk'].forEach(n => $(`${n}-overlay`).addEventListener('click', () => closePanel(n)));
 
-        function renderTable() {
-            liveTimers.forEach(clearInterval); liveTimers = [];
-            DOM.issuesTableBody.innerHTML = '';
-            
-            let issuesArr = Object.entries(allIssuesData).map(([key, val]) => ({ key, ...val }));
-            
-            // Apply Filters
-            const fReg = DOM.filterRegion.value;
-            const fStat = DOM.filterStatus.value;
-            
-            filteredIssuesForExport = issuesArr.filter(i => {
-                let matchReg = fReg === 'all' || i.region === fReg;
-                let matchStat = true;
-                if (fStat === 'overdue') matchStat = i.status === 'جاري المتابعة' && calculateWastedMinutes(i.startTime) > (8 * 60);
-                else if (fStat !== 'all') matchStat = i.status === fStat;
-                return matchReg && matchStat;
-            }).sort((a,b) => dayjs(b.startTime).unix() - dayjs(a.startTime).unix());
+// ── Tabs ──
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tg = btn.closest('.report-tabs');
+        tg.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const pb = btn.closest('.side-panel').querySelector('.panel-body');
+        pb.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        pb.querySelector(`#${btn.dataset.tab}`).classList.add('active');
+    });
+});
 
-            if (filteredIssuesForExport.length === 0) {
-                DOM.issuesTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">لا توجد بيانات تطابق الفلتر الحالي.</td></tr>`;
-                updateStats(0,0,0,0);
-                feather.replace();
-                return;
-            }
+// ── Stats ──
+function updateStats({ total, pending, resolved, overdue }) {
+    $('count-total').textContent = total;
+    $('count-pending').textContent = pending;
+    $('count-resolved').textContent = resolved;
+    $('count-overdue').textContent = overdue;
+    $('table-count').textContent = `${total} مشكلة`;
+}
 
-            let t=0, p=0, r=0, o=0;
+// ── Dropdowns ──
+function populateDropdowns() {
+    const o = arr => arr.map(v => `<option value="${v}">${v}</option>`).join('');
+    addForm.region.innerHTML = o(DROPDOWN_OPTIONS.regions);
+    $('filter-region').innerHTML += o(DROPDOWN_OPTIONS.regions);
+    addForm.department.innerHTML = o(DROPDOWN_OPTIONS.departments);
+    addForm['issue-type'].innerHTML = `<option value="" disabled selected>-- اختر --</option>${o(DROPDOWN_OPTIONS.issueTypes)}`;
+}
 
-            filteredIssuesForExport.forEach((issue, idx) => {
-                t++;
-                let isOverdue = false;
-                const mins = calculateWastedMinutes(issue.startTime, issue.resolutionTime);
-                
-                if (issue.status === 'جاري المتابعة') {
-                    p++;
-                    if (mins > 480) { isOverdue = true; o++; } // > 8 hours
-                } else { r++; }
+function validateForm(form) {
+    let v = true;
+    form.querySelectorAll('[required]').forEach(el => { el.classList.remove('invalid'); if (!el.value) { v = false; el.classList.add('invalid'); } });
+    return v;
+}
 
-                const statClass = issue.status === 'تم الحل' ? 'resolved' : (isOverdue ? 'overdue' : 'pending');
-                const statText = isOverdue ? 'متأخر جداً' : issue.status;
-                const adminActions = isAdmin ? `
-                    <button class="doc-btn" data-key="${issue.key}" title="إصدار خطاب طارئ"><i data-feather="mail"></i></button>
-                    <button class="edit-btn" data-key="${issue.key}" title="تعديل"><i data-feather="edit-2"></i></button>
-                    <button class="delete-btn" data-key="${issue.key}" title="حذف"><i data-feather="trash-2"></i></button>
-                ` : '';
+// ── Table ──
+const observer = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } }), { threshold: 0.05 });
 
-                const tr = document.createElement('tr');
-                tr.classList.add('reveal');
-                tr.style.transitionDelay = `${idx * 30}ms`;
-                
-                tr.innerHTML = `
-                    <td><strong>${issue.region}</strong></td>
-                    <td>
-                        <div style="font-weight:bold; color:var(--primary-color);">${issue.issueType}</div>
-                        <div class="issue-desc" title="اضغط للقراءة">${issue.issueDetails}</div>
-                    </td>
-                    <td>${issue.affectedTool}</td>
-                    <td>${issue.department}</td>
-                    <td><span class="status-indicator status-${statClass}">${statText}</span></td>
-                    <td style="direction:ltr;">${dayjs(issue.startTime).format('DD/MM/YY HH:mm')}</td>
-                    <td id="dur-${issue.key}" style="color:${isOverdue ? 'var(--danger-color)' : 'inherit'}; font-weight:bold;">${formatTime(mins)}</td>
-                    <td class="action-btn-group">
-                        ${issue.status !== 'تم الحل' ? `<button class="btn btn-smart resolve-btn" data-key="${issue.key}" style="padding: 4px 10px; font-size:12px;">إغلاق</button>` : ''}
-                        ${adminActions}
-                    </td>
-                `;
-                DOM.issuesTableBody.appendChild(tr);
+function findRecurring() {
+    const g = {};
+    for (const k in allIssuesData) {
+        const i = allIssuesData[k];
+        if (!i.region || !i.issueType || !i.affectedTool) continue;
+        const ck = `${i.region}|${i.issueType}|${i.affectedTool.trim().toLowerCase()}`;
+        if (!g[ck]) g[ck] = [];
+        g[ck].push(k);
+    }
+    recurringIssueGroups = Object.fromEntries(Object.entries(g).filter(([,v]) => v.length > 1));
+}
 
-                // Reveal animation
-                setTimeout(() => tr.classList.add('revealed'), 50);
+function getFiltered() {
+    let arr = Object.entries(allIssuesData).map(([k,v]) => ({ key:k,...v }));
+    const fs = $('filter-status').value, fr = $('filter-region').value;
+    if (fs === 'recurring' && isAdmin) {
+        const rk = new Set(Object.values(recurringIssueGroups).flat());
+        return arr.filter(i => rk.has(i.key) && (fr === 'all' || i.region === fr));
+    }
+    return arr.filter(i => {
+        const pr = fr === 'all' || i.region === fr;
+        const ps = fs === 'all' ? true : fs === 'overdue' ?
+            (i.status === 'جاري المتابعة' && (calcDur(i.startTime).totalMinutes/60) > ACCEPTABLE_DURATION_HOURS) :
+            i.status === fs;
+        return pr && ps;
+    });
+}
 
-                if (issue.status === 'جاري المتابعة') {
-                    liveTimers.push(setInterval(() => {
-                        const cell = document.getElementById(`dur-${issue.key}`);
-                        if (cell) cell.textContent = formatTime(calculateWastedMinutes(issue.startTime));
-                    }, 60000));
+function renderTable() {
+    liveTimers.forEach(clearInterval); liveTimers = [];
+    const tbody = $('issues-tbody'); tbody.innerHTML = '';
+    if (isAdmin) findRecurring();
+    const issues = getFiltered();
+    issues.sort((a,b) => dayjs(b.startTime).unix() - dayjs(a.startTime).unix());
+    filteredIssuesForExport = issues;
+    if (!issues.length) {
+        const msg = Object.keys(allIssuesData).length === 0 ? 'لا توجد مشاكل مسجلة حالياً.' : 'لا توجد نتائج تطابق الفلترة.';
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${msg}</p></div></td></tr>`;
+        updateStats({ total:0, pending:0, resolved:0, overdue:0 });
+        return;
+    }
+    const rk = new Set(Object.values(recurringIssueGroups).flat());
+    const stats = { total: issues.length, pending:0, resolved:0, overdue:0 };
+    issues.forEach((issue, idx) => {
+        const dur = calcDur(issue.startTime, issue.resolutionTime);
+        const hw = (dur.totalMinutes/60).toFixed(1);
+        const isOver = issue.status === 'جاري المتابعة' && parseFloat(hw) > ACCEPTABLE_DURATION_HOURS;
+        if (issue.status === 'تم الحل') stats.resolved++;
+        else { stats.pending++; if (isOver) stats.overdue++; }
+        const sc = issue.status === 'تم الحل' ? 'pill-resolved' : (isOver ? 'pill-overdue' : 'pill-pending');
+        const st = issue.status === 'تم الحل' ? 'تم الحل' : (isOver ? 'متأخرة' : 'جاري المتابعة');
+        const did = `dur-${issue.key}`;
+        const adminBtns = isAdmin ? `
+            <button class="icon-btn letter" data-key="${issue.key}" title="إصدار مراسلة"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button>
+            <button class="icon-btn edit" data-key="${issue.key}" title="تعديل"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn delete" data-key="${issue.key}" title="حذف"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>` : '';
+        const tr = document.createElement('tr');
+        tr.classList.add('reveal');
+        if (isAdmin && rk.has(issue.key)) tr.classList.add('recurring-row');
+        tr.style.transitionDelay = `${idx * 40}ms`;
+        tr.innerHTML = `
+            <td><span style="font-weight:600;">${issue.region}</span>${isAdmin && issue.createdByEmail ? `<div class="cell-meta">${issue.createdByEmail}</div>` : ''}</td>
+            <td>${issue.issueType}</td>
+            <td style="font-weight:600;">${issue.affectedTool}</td>
+            <td>${issue.department}</td>
+            <td><span class="status-pill ${sc}">${st}</span>${issue.status==='تم الحل'&&isAdmin&&issue.resolvedByEmail?`<div class="cell-meta">${issue.resolvedByEmail}</div>`:''}</td>
+            <td style="color:var(--ink-muted);font-size:0.88em;">${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}</td>
+            <td><span class="duration-chip ${parseFloat(hw)>ACCEPTABLE_DURATION_HOURS?'high':''}" id="${did}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${fmtDur(dur)}</span></td>
+            <td><div class="action-cell">${issue.status!=='تم الحل'?`<button class="btn btn-ghost resolve-btn" data-key="${issue.key}" style="padding:6px 14px;font-size:0.82em;">حل المشكلة</button>`:''}${adminBtns}</div></td>`;
+        tbody.appendChild(tr);
+        observer.observe(tr);
+        if (issue.status === 'جاري المتابعة') {
+            liveTimers.push(setInterval(() => {
+                const c = document.getElementById(did);
+                if (c) {
+                    const d = calcDur(issue.startTime);
+                    c.className = `duration-chip ${(d.totalMinutes/60)>ACCEPTABLE_DURATION_HOURS?'high':''}`;
+                    c.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${fmtDur(d)}`;
                 }
-            });
-
-            updateStats(t, p, r, o);
-            feather.replace();
+            }, 60000));
         }
+    });
+    updateStats(stats);
+}
 
-        function updateStats(t, p, r, o) {
-            document.getElementById('count-total').textContent = t;
-            document.getElementById('count-pending').textContent = p;
-            document.getElementById('count-resolved').textContent = r;
-            document.getElementById('count-overdue').textContent = o;
-        }
+$('issues-tbody').addEventListener('click', e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    const key = btn.dataset.key;
+    if (btn.classList.contains('resolve-btn')) openResolvePanel(key);
+    if (isAdmin && btn.classList.contains('edit')) openEditPanel(key);
+    if (isAdmin && btn.classList.contains('delete')) handleDelete(key);
+    if (isAdmin && btn.classList.contains('letter')) openLetterPanel(key);
+});
 
-        // --- SMART REPORTING LOGIC ---
-        function setActivePrintTemplate(id) {
-            document.querySelectorAll('.print-template').forEach(el => el.classList.remove('active-print'));
-            document.getElementById(id).classList.add('active-print');
-        }
+// ── ADD/EDIT ──
+function openAddPanel() {
+    addForm.reset(); $('edit-issue-id').value = '';
+    $('add-panel-title').textContent = 'تسجيل مشكلة جديدة';
+    $('add-submit-btn').textContent = 'إضافة المشكلة';
+    $('add-submit-btn').style.background = '';
+    addForm['start-time'].value = dayjs().format('YYYY-MM-DDTHH:mm');
+    $('recurring-issue-alert').style.display = 'none';
+    openPanel('add');
+}
+function openEditPanel(key) {
+    const d = allIssuesData[key]; addForm.reset();
+    $('edit-issue-id').value = key;
+    addForm.region.value = d.region; addForm.department.value = d.department;
+    addForm['issue-type'].value = d.issueType; addForm['affected-tool'].value = d.affectedTool;
+    addForm['issue-details'].value = d.issueDetails; addForm['start-time'].value = d.startTime;
+    $('add-panel-title').textContent = 'تعديل بيانات المشكلة';
+    $('add-submit-btn').textContent = 'حفظ التعديلات';
+    $('add-submit-btn').style.background = 'var(--warning)';
+    openPanel('add');
+}
 
-        // 1. Single Issue Urgent Letter
-        function openSingleReport(key) {
-            const data = allIssuesData[key];
-            const mins = calculateWastedMinutes(data.startTime, data.resolutionTime);
-            const wastedStr = formatTime(mins);
-            const dFormat = dayjs().format('YYYY/MM/DD');
-            const startFormat = dayjs(data.startTime).format('YYYY/MM/DD HH:mm');
-            
-            // Set Print HTML
-            setActivePrintTemplate('print-template-single');
-            document.getElementById('p-single-date').textContent = dFormat;
-            document.getElementById('p-single-ref').textContent = key.substring(1,7).toUpperCase();
-            document.getElementById('p-single-dept').textContent = data.department;
-            document.getElementById('p-single-region').textContent = data.region;
-            document.getElementById('p-single-type').textContent = data.issueType;
-            document.getElementById('p-single-tool').textContent = data.affectedTool;
-            document.getElementById('p-single-start').textContent = startFormat;
-            document.getElementById('p-single-wasted').textContent = wastedStr;
-            document.getElementById('p-single-details').textContent = data.issueDetails;
-            document.getElementById('p-single-admin').textContent = currentUser.email;
+addForm.addEventListener('submit', async e => {
+    e.preventDefault(); if (!validateForm(addForm)) return;
+    $('add-submit-btn').disabled = true;
+    const key = $('edit-issue-id').value;
+    const data = {
+        region: addForm.region.value, department: addForm.department.value,
+        issueType: addForm['issue-type'].value, affectedTool: addForm['affected-tool'].value,
+        issueDetails: addForm['issue-details'].value, startTime: addForm['start-time'].value
+    };
+    if (!key) {
+        const sim = findSimilar(data);
+        if (sim.length > 0) {
+            const r = sim[0];
+            if (confirm(`تحذير: مشكلة متكررة محتملة!\nتم حل مشكلة مشابهة بتاريخ: ${dayjs(r.resolutionTime).format('YYYY/MM/DD')}\nالحل: "${r.resolutionNotes || 'لا توجد ملاحظات'}"\n\nهل تريد المتابعة؟`)) { await saveNew(data); }
+            else { $('add-submit-btn').disabled = false; return; }
+        } else { await saveNew(data); }
+    } else {
+        data.lastModifiedBy = currentUser.uid; data.lastModifiedByEmail = currentUser.email; data.lastModifiedAt = new Date().toISOString();
+        await update(ref(database,'issues/'+key), data); closePanel('add'); toast('تم حفظ التعديلات');
+    }
+    $('add-submit-btn').disabled = false;
+});
 
-            // Set Email Preview HTML
-            const emailHTML = `
-                <p><strong>الموضوع:</strong> 🔴 عطل تقني طارئ - ${data.region} (${data.issueType})</p>
-                <hr style="margin: 15px 0;">
-                <p>السادة إدارة / ${data.department}،</p>
-                <p>تحية طيبة،</p>
-                <p>نحيطكم علماً بوجود عطل تقني مسجل لدينا أدى لتعطيل العمليات لمدة <strong><span style="color:#dc3545;">${wastedStr}</span></strong> حتى الآن.</p>
-                <ul style="margin-top:10px; margin-bottom:10px;">
-                    <li><strong>المنطقة:</strong> ${data.region}</li>
-                    <li><strong>النظام المتأثر:</strong> ${data.affectedTool}</li>
-                    <li><strong>وقت الرصد:</strong> ${startFormat}</li>
-                </ul>
-                <p><strong>وصف المشكلة:</strong><br>${data.issueDetails}</p>
-                <p>برجاء الفحص والإفادة العاجلة.</p>
-            `;
-            
-            document.getElementById('report-modal-title').textContent = 'رسالة تنبيه لعطل فردي';
-            document.getElementById('report-wasted-time-val').textContent = wastedStr;
-            document.getElementById('email-preview-container').innerHTML = emailHTML;
-            
-            DOM.reportModalOverlay.classList.add('active');
-            DOM.reportSidePanel.classList.add('active');
-        }
+async function saveNew(data) {
+    data.status = 'جاري المتابعة'; data.createdBy = currentUser.uid; data.createdByEmail = currentUser.email; data.createdAt = new Date().toISOString();
+    await push(issuesRef, data); closePanel('add'); toast('تم تسجيل المشكلة بنجاح');
+}
 
-        // 2. Bulk/Filtered Comprehensive Report
-        document.getElementById('generate-bulk-report-btn').addEventListener('click', () => {
-            if (filteredIssuesForExport.length === 0) return alert('لا توجد بيانات. قم بتغيير الفلاتر.');
+// ── RESOLVE ──
+function openResolvePanel(key) {
+    const d = allIssuesData[key]; resolveForm.reset();
+    $('resolve-issue-id').value = key;
+    $('resolution-time').value = dayjs().format('YYYY-MM-DDTHH:mm');
+    $('original-issue-details').innerHTML = `<strong>المنطقة:</strong> ${d.region} &nbsp;|&nbsp; <strong>نوع المشكلة:</strong> ${d.issueType}<br><strong>الأداة:</strong> ${d.affectedTool}<br><strong>التفاصيل:</strong> ${d.issueDetails}`;
+    openPanel('resolve');
+}
+resolveForm.addEventListener('submit', e => {
+    e.preventDefault(); if (!validateForm(resolveForm)) return;
+    const key = $('resolve-issue-id').value;
+    update(ref(database,'issues/'+key), {
+        status:'تم الحل', resolutionTime: $('resolution-time').value,
+        resolutionNotes: $('resolution-notes').value, resolvedBy: currentUser.uid, resolvedByEmail: currentUser.email
+    }).then(() => { closePanel('resolve'); toast('تم تسجيل الحل بنجاح ✓'); });
+});
 
-            let totalMins = 0;
-            let rowsHTML = '';
-            let emailListHTML = '';
-            
-            const selectedRegion = DOM.filterRegion.options[DOM.filterRegion.selectedIndex].text;
-            const recipient = selectedRegion === 'كل المناطق' ? 'الجهات المعنية والإدارة العليا' : `إدارة منطقة ${selectedRegion}`;
+function handleDelete(key) {
+    const d = allIssuesData[key]?.issueDetails || 'هذه المشكلة';
+    if (confirm(`هل أنت متأكد من حذف:\n"${d}"\n\nلا يمكن التراجع!`)) {
+        remove(ref(database,'issues/'+key)).then(() => toast('تم الحذف'));
+    }
+}
 
-            filteredIssuesForExport.forEach(i => {
-                const m = calculateWastedMinutes(i.startTime, i.resolutionTime);
-                totalMins += m;
-                const durStr = formatTime(m);
-                
-                rowsHTML += `<tr>
-                    <td>${i.region}</td><td>${i.issueType}</td><td>${i.affectedTool}</td>
-                    <td>${i.status}</td><td style="color:#dc3545; font-weight:bold;">${durStr}</td>
-                </tr>`;
-                
-                if (i.status !== 'تم الحل') {
-                    emailListHTML += `<li>${i.region}: ${i.issueType} (${i.affectedTool}) - <span style="color:#dc3545;">تعطل ${durStr}</span></li>`;
-                }
-            });
+function findSimilar(cur) {
+    return Object.values(allIssuesData).filter(i =>
+        i.status==='تم الحل' && i.region===cur.region && i.issueType===cur.issueType &&
+        i.affectedTool.trim().toLowerCase()===cur.affectedTool.trim().toLowerCase()
+    ).sort((a,b) => dayjs(b.resolutionTime).unix()-dayjs(a.resolutionTime).unix());
+}
 
-            const totalWastedStr = formatTime(totalMins);
+// ══════════════════════════════════
+// LETTER / EMAIL BUILDERS
+// ══════════════════════════════════
+function buildLetter(issue, refId, date, adminEmail) {
+    const dur = calcDur(issue.startTime, issue.resolutionTime);
+    const hw = (dur.totalMinutes/60).toFixed(1);
+    const durTxt = fmtDur(dur);
+    const startFmt = dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A');
+    const endFmt = issue.resolutionTime ? dayjs(issue.resolutionTime).format('YYYY/MM/DD hh:mm A') : 'لم يُحل بعد';
+    const ongoing = !issue.resolutionTime;
+    return `
+    <div class="letter-preview-header">
+        <div><div class="org-name">إدارة المساحة والخرائط</div><div class="org-sub">نظام متابعة المشاكل التقنية</div></div>
+        <div class="ref-block"><div class="ref-num">مرجع: ${refId}</div><div class="ref-date">${date}</div></div>
+    </div>
+    <div class="letter-body">
+        <p class="salutation">السادة المحترمين / ${issue.department}</p>
+        <p>تحية طيبة وبعد،</p>
+        <p>نحيطكم علماً بأنه تم رصد ${ongoing?'عطل تقني قيد المتابعة':'عطل تقني تم حله'} يستوجب إحاطتكم بتفاصيله نظراً للتأثير المباشر على استمرارية العمليات.</p>
+        <table class="letter-issue-table">
+            <tr><th>المنطقة</th><td>${issue.region}</td></tr>
+            <tr><th>نوع المشكلة</th><td>${issue.issueType}</td></tr>
+            <tr><th>الأداة / النظام المتأثر</th><td>${issue.affectedTool}</td></tr>
+            <tr><th>تاريخ رصد المشكلة</th><td>${startFmt}</td></tr>
+            ${issue.resolutionTime?`<tr><th>تاريخ الحل</th><td>${endFmt}</td></tr>`:''}
+            <tr class="hours-wasted-row"><th>⏱ ساعات العمل المهدرة</th><td>${durTxt} (${hw} ساعة عمل فعلية)</td></tr>
+        </table>
+        <p><strong>تفاصيل المشكلة:</strong></p>
+        <p style="background:#f9f9f9;border-right:3px solid #ccc;padding:12px 16px;border-radius:0 6px 6px 0;margin:8px 0 16px;">${issue.issueDetails}</p>
+        ${issue.resolutionNotes?`<p><strong>إجراءات الحل:</strong></p><p style="background:#f0f9f4;border-right:3px solid #1a7f5a;padding:12px 16px;border-radius:0 6px 6px 0;margin:8px 0 16px;">${issue.resolutionNotes}</p>`:''}
+        <p>${ongoing?'برجاء التفضل باتخاذ اللازم نحو الإسراع في حل المشكلة للحد من مزيد من الخسائر في وقت العمل.':'وقد تم معالجة المشكلة وإغلاقها، وهذه المراسلة للإحاطة والتوثيق الرسمي.'}</p>
+        <p>وتفضلوا بقبول فائق الاحترام والتقدير،،،</p>
+        <div class="letter-signature"><strong>مدير النظام</strong>${adminEmail}<p style="margin-top:18px;">التوقيع: ................................</p></div>
+    </div>`;
+}
 
-            // Set Print HTML
-            setActivePrintTemplate('print-template-bulk');
-            document.getElementById('p-bulk-date').textContent = dayjs().format('YYYY/MM/DD');
-            document.getElementById('p-bulk-recipient').textContent = recipient;
-            document.getElementById('p-bulk-count').textContent = filteredIssuesForExport.length;
-            document.getElementById('p-bulk-wasted-total').textContent = totalWastedStr;
-            document.getElementById('p-bulk-table-body').innerHTML = rowsHTML;
-            document.getElementById('p-bulk-admin').textContent = currentUser.email;
+function buildEmailHTML(issue, refId, date, adminEmail) {
+    const dur = calcDur(issue.startTime, issue.resolutionTime);
+    const hw = (dur.totalMinutes/60).toFixed(1);
+    const ongoing = !issue.resolutionTime;
+    return `
+    <div class="email-header-bar">
+        <div class="email-field"><span class="field-key">من:</span><span class="field-val">${adminEmail}</span></div>
+        <div class="email-field"><span class="field-key">الموضوع:</span><span class="field-val">🔴 إشعار عطل تقني — ${issue.region} | ${issue.issueType} | مرجع: ${refId}</span></div>
+        <div class="email-field"><span class="field-key">التاريخ:</span><span class="field-val">${date}</span></div>
+    </div>
+    <div class="email-body-area">
+        <p class="email-greeting">السادة / ${issue.department}،</p>
+        <p>تحية طيبة،</p>
+        <p>نود إحاطتكم بالعطل التقني التالي المسجل:</p>
+        <ul>
+            <li><strong>المنطقة:</strong> ${issue.region}</li>
+            <li><strong>نوع المشكلة:</strong> ${issue.issueType}</li>
+            <li><strong>الأداة المتأثرة:</strong> ${issue.affectedTool}</li>
+            <li><strong>وقت الرصد:</strong> ${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}</li>
+            <li><strong>التفاصيل:</strong> ${issue.issueDetails}</li>
+        </ul>
+        <div class="email-hours-highlight">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            إجمالي ساعات العمل المهدرة: ${fmtDur(dur)} (${hw} ساعة فعلية)
+        </div>
+        ${issue.resolutionNotes?`<p><strong>إجراءات الحل:</strong> ${issue.resolutionNotes}</p>`:''}
+        <p>${ongoing?'برجاء المتابعة العاجلة واتخاذ الإجراءات اللازمة.':'تم حل المشكلة — رسالة توثيقية رسمية.'}</p>
+        <p>شكراً لتعاونكم،</p>
+        <p style="color:var(--ink-muted);font-size:0.88em;">—<br>${adminEmail}<br>نظام متابعة المشاكل التقنية</p>
+    </div>`;
+}
 
-            // Set Email Preview HTML
-            const emailHTML = `
-                <p><strong>الموضوع:</strong> 📊 تقرير حالة الأعطال التقنية - ${selectedRegion}</p>
-                <hr style="margin: 15px 0;">
-                <p>السادة / ${recipient}،</p>
-                <p>مرفق لسيادتكم ملخص بحالة المشاكل التقنية المسجلة. إجمالي المشاكل بالتقرير: <strong>${filteredIssuesForExport.length}</strong>.</p>
-                <div style="background:#fff3cd; color:#856404; padding:10px; border-left:4px solid #ffc107; margin:15px 0;">
-                    <strong>إجمالي أوقات تعطل العمليات المحتسبة: <span style="color:#dc3545; font-size:1.1em;">${totalWastedStr}</span></strong>
-                </div>
-                ${emailListHTML ? `<p><strong>أبرز الأعطال الجارية حالياً:</strong></p><ul>${emailListHTML}</ul>` : '<p>جميع المشاكل في هذا النطاق تم حلها بنجاح.</p>'}
-                <p>برجاء مراجعة التقرير واتخاذ اللازم.</p>
-            `;
+function buildEmailPlain(issue, refId, date, adminEmail) {
+    const dur = calcDur(issue.startTime, issue.resolutionTime);
+    return `الموضوع: إشعار عطل تقني — ${issue.region} | ${issue.issueType} | مرجع: ${refId}
 
-            document.getElementById('report-modal-title').textContent = 'تقرير مجمع (للإدارة)';
-            document.getElementById('report-wasted-time-val').textContent = totalWastedStr;
-            document.getElementById('email-preview-container').innerHTML = emailHTML;
-            
-            DOM.reportModalOverlay.classList.add('active');
-            DOM.reportSidePanel.classList.add('active');
-        });
+السادة / ${issue.department}،
 
-        // Setup common events
-        function setupEvents() {
-            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-            [DOM.filterRegion, DOM.filterStatus].forEach(el => el.addEventListener('change', renderTable));
-            
-            document.getElementById('add-issue-btn').addEventListener('click', () => {
-                DOM.addIssueForm.reset();
-                DOM.addIssueForm.elements['start-time'].value = dayjs().format('YYYY-MM-DDTHH:mm');
-                document.getElementById('add-modal-overlay').classList.add('active');
-                document.getElementById('add-side-panel').classList.add('active');
-            });
+تحية طيبة،
 
-            DOM.closeBtns.forEach(btn => btn.addEventListener('click', (e) => { 
-                const t = e.target.dataset.target; 
-                document.getElementById(`${t}-modal-overlay`).classList.remove('active'); 
-                document.getElementById(`${t}-side-panel`).classList.remove('active'); 
-            }));
+نود إحاطتكم بالعطل التقني التالي:
+- المنطقة: ${issue.region}
+- نوع المشكلة: ${issue.issueType}
+- الأداة المتأثرة: ${issue.affectedTool}
+- وقت الرصد: ${dayjs(issue.startTime).format('YYYY/MM/DD hh:mm A')}
+- التفاصيل: ${issue.issueDetails}
 
-            // Table Actions Click Listener
-            DOM.issuesTableBody.addEventListener('click', (e) => { 
-                const btn = e.target.closest('button');
-                if (!btn) return;
-                const key = btn.dataset.key;
-                
-                if (btn.classList.contains('resolve-btn')) {
-                    DOM.updateIssueForm.reset();
-                    document.getElementById('update-issue-id').value = key;
-                    document.getElementById('resolution-time').value = dayjs().format('YYYY-MM-DDTHH:mm');
-                    document.getElementById('update-modal-overlay').classList.add('active');
-                    document.getElementById('update-side-panel').classList.add('active');
-                }
-                if (isAdmin && btn.classList.contains('doc-btn')) openSingleReport(key);
-                if (isAdmin && btn.classList.contains('delete-btn') && confirm('حذف نهائي؟')) remove(ref(database, 'issues/' + key));
-            });
+⏱ إجمالي ساعات العمل المهدرة: ${fmtDur(dur)} (${(dur.totalMinutes/60).toFixed(1)} ساعة فعلية)
+${issue.resolutionNotes?`\nإجراءات الحل: ${issue.resolutionNotes}`:''}
+${!issue.resolutionTime?'برجاء المتابعة العاجلة.':'تم حل المشكلة — رسالة توثيقية.'}
 
-            // Report Actions
-            document.getElementById('print-report-btn').addEventListener('click', () => window.print());
-            document.getElementById('copy-email-btn').addEventListener('click', (e) => {
-                const container = document.getElementById('email-preview-container');
-                navigator.clipboard.writeText(container.innerText).then(() => {
-                    const btn = e.currentTarget;
-                    btn.innerHTML = '<i data-feather="check"></i> تم النسخ للحافظة!';
-                    btn.classList.replace('btn-secondary', 'btn-smart');
-                    feather.replace();
-                    setTimeout(() => { 
-                        btn.innerHTML = '<i data-feather="mail"></i> نسخ كرسالة بريد'; 
-                        btn.classList.replace('btn-smart', 'btn-secondary');
-                        feather.replace(); 
-                    }, 2500);
-                });
-            });
+شكراً،
+${adminEmail}`;
+}
 
-            // Add Form Submit
-            DOM.addIssueForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const f = e.target;
-                const data = {
-                    region: f.region.value, department: f.department.value,
-                    issueType: f['issue-type'].value, affectedTool: f['affected-tool'].value,
-                    issueDetails: f['issue-details'].value, startTime: f['start-time'].value,
-                    status: 'جاري المتابعة', createdAt: new Date().toISOString()
-                };
-                await push(issuesRef, data);
-                document.getElementById('add-modal-overlay').classList.remove('active');
-                document.getElementById('add-side-panel').classList.remove('active');
-            });
+function openLetterPanel(key) {
+    currentLetterIssueId = key;
+    const issue = allIssuesData[key];
+    const refId = key.substring(1,8).toUpperCase(), date = dayjs().format('YYYY/MM/DD');
+    $('letter-preview-content').innerHTML = buildLetter(issue, refId, date, currentUser.email);
+    $('email-preview-content').innerHTML = buildEmailHTML(issue, refId, date, currentUser.email);
+    document.querySelectorAll('#letter-panel .tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.querySelectorAll('#letter-panel .tab-pane').forEach((p,i) => p.classList.toggle('active', i===0));
+    $('pt-date').textContent = date; $('pt-ref').textContent = refId; $('pt-admin').textContent = currentUser.email;
+    $('pt-body').innerHTML = buildLetter(issue, refId, date, currentUser.email);
+    openPanel('letter');
+}
 
-            // Update/Resolve Form Submit
-            DOM.updateIssueForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const key = document.getElementById('update-issue-id').value;
-                await update(ref(database, 'issues/' + key), {
-                    status: 'تم الحل', 
-                    resolutionTime: document.getElementById('resolution-time').value,
-                    resolutionNotes: document.getElementById('resolution-notes').value
-                });
-                document.getElementById('update-modal-overlay').classList.remove('active');
-                document.getElementById('update-side-panel').classList.remove('active');
-            });
-        }
+$('print-letter-btn').addEventListener('click', () => window.print());
+$('copy-letter-btn').addEventListener('click', () => copyText($('letter-preview-content').innerText));
+$('copy-email-btn').addEventListener('click', () => {
+    if (!currentLetterIssueId) return;
+    const issue = allIssuesData[currentLetterIssueId];
+    copyText(buildEmailPlain(issue, currentLetterIssueId.substring(1,8).toUpperCase(), dayjs().format('YYYY/MM/DD'), currentUser.email));
+});
+$('open-mail-btn').addEventListener('click', () => {
+    if (!currentLetterIssueId) return;
+    const issue = allIssuesData[currentLetterIssueId];
+    const refId = currentLetterIssueId.substring(1,8).toUpperCase(), date = dayjs().format('YYYY/MM/DD');
+    window.open(`mailto:?subject=${encodeURIComponent(`إشعار عطل تقني — ${issue.region} | ${issue.issueType} | مرجع: ${refId}`)}&body=${encodeURIComponent(buildEmailPlain(issue, refId, date, currentUser.email))}`);
+});
 
-        init();
-    </script>
+// ── BULK REPORT ──
+function buildBulkLetter(issues, date, adminEmail) {
+    const totalMins = issues.reduce((a,i) => a + calcDur(i.startTime, i.resolutionTime).totalMinutes, 0);
+    const totalH = (totalMins/60).toFixed(1);
+    const overdueC = issues.filter(i => i.status!=='تم الحل' && (calcDur(i.startTime).totalMinutes/60)>ACCEPTABLE_DURATION_HOURS).length;
+    const rows = issues.map((i,idx) => {
+        const d = calcDur(i.startTime, i.resolutionTime), h = (d.totalMinutes/60).toFixed(1);
+        return `<tr>
+            <td style="border:1px solid #ddd;padding:8px 12px;text-align:center;font-weight:700;">${idx+1}</td>
+            <td style="border:1px solid #ddd;padding:8px 12px;">${i.region}</td>
+            <td style="border:1px solid #ddd;padding:8px 12px;">${i.issueType}</td>
+            <td style="border:1px solid #ddd;padding:8px 12px;">${i.affectedTool}</td>
+            <td style="border:1px solid #ddd;padding:8px 12px;text-align:center;"><span style="background:${i.status==='تم الحل'?'#e8f5e9':'#fff3e0'};color:${i.status==='تم الحل'?'#1a7f5a':'#d68910'};padding:2px 8px;border-radius:10px;font-size:0.85em;">${i.status}</span></td>
+            <td style="border:1px solid #ddd;padding:8px 12px;text-align:center;font-weight:700;color:${parseFloat(h)>ACCEPTABLE_DURATION_HOURS?'#c0392b':'#333'};">${fmtDur(d)}</td>
+        </tr>`;
+    }).join('');
+    return `
+    <div class="letter-preview-header">
+        <div><div class="org-name">إدارة المساحة والخرائط</div><div class="org-sub">تقرير شامل بالمشاكل التقنية</div></div>
+        <div class="ref-block"><div class="ref-num">تقرير الفترة المعروضة</div><div class="ref-date">${date}</div></div>
+    </div>
+    <div class="letter-body">
+        <p class="salutation">السادة المعنيون،</p>
+        <p>تحية طيبة وبعد،</p>
+        <p>فيما يلي التقرير الشامل للمشاكل التقنية المسجلة وفق الفلترة الحالية للإحاطة ومتابعة الأداء التشغيلي:</p>
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:0.9em;">
+            <thead><tr style="background:#1a1c2e;color:#fff;">
+                <th style="border:1px solid #333;padding:10px;text-align:center;">#</th>
+                <th style="border:1px solid #333;padding:10px;">المنطقة</th>
+                <th style="border:1px solid #333;padding:10px;">نوع المشكلة</th>
+                <th style="border:1px solid #333;padding:10px;">الأداة</th>
+                <th style="border:1px solid #333;padding:10px;text-align:center;">الحالة</th>
+                <th style="border:1px solid #333;padding:10px;text-align:center;">الساعات المهدرة</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr style="background:#fff3e0;">
+                <td colspan="5" style="border:1px solid #ddd;padding:10px;font-weight:700;text-align:left;">إجمالي الساعات المهدرة:</td>
+                <td style="border:1px solid #ddd;padding:10px;font-weight:800;color:#c0392b;text-align:center;">${totalH} ساعة</td>
+            </tr></tfoot>
+        </table>
+        <p><strong>ملخص إحصائي:</strong></p>
+        <ul style="margin:10px 0 18px;padding-right:20px;line-height:2;">
+            <li>إجمالي المشاكل: <strong>${issues.length}</strong></li>
+            <li>محلولة: <strong>${issues.filter(i=>i.status==='تم الحل').length}</strong></li>
+            <li>قيد المتابعة: <strong>${issues.filter(i=>i.status!=='تم الحل').length}</strong></li>
+            <li>متأخرة (تجاوزت ${ACCEPTABLE_DURATION_HOURS} ساعات): <strong style="color:#c0392b;">${overdueC}</strong></li>
+            <li>إجمالي ساعات العمل المهدرة: <strong style="color:#c0392b;">${totalH} ساعة فعلية</strong></li>
+        </ul>
+        <p>نأمل أن يُسهم هذا التقرير في دعم القرارات التشغيلية ورفع كفاءة الاستجابة للأعطال مستقبلاً.</p>
+        <div class="letter-signature"><strong>مدير النظام</strong>${adminEmail}<p style="margin-top:18px;">التوقيع: ................................</p></div>
+    </div>`;
+}
+
+function buildBulkEmailPlain(issues, date, adminEmail) {
+    const totalMins = issues.reduce((a,i) => a + calcDur(i.startTime, i.resolutionTime).totalMinutes, 0);
+    const lines = issues.map((i,idx) => `${idx+1}. [${i.region}] ${i.issueType} — ${i.affectedTool} | ${i.status} | ${fmtDur(calcDur(i.startTime,i.resolutionTime))}`).join('\n');
+    return `الموضوع: تقرير شامل بالمشاكل التقنية — ${date}
+
+السادة المعنيون،
+
+فيما يلي ملخص المشاكل التقنية المسجلة:
+
+${lines}
+
+───────────────────────────────
+إجمالي الساعات المهدرة: ${(totalMins/60).toFixed(1)} ساعة عمل
+إجمالي المشاكل: ${issues.length}
+───────────────────────────────
+${adminEmail}`;
+}
+
+function openBulkPanel() {
+    const issues = filteredIssuesForExport;
+    if (!issues.length) { toast('لا توجد مشاكل لعرضها'); return; }
+    const date = dayjs().format('YYYY/MM/DD');
+    $('bulk-letter-content').innerHTML = buildBulkLetter(issues, date, currentUser.email);
+    const totalMins = issues.reduce((a,i) => a + calcDur(i.startTime, i.resolutionTime).totalMinutes, 0);
+    const totalH = (totalMins/60).toFixed(1);
+    $('bulk-email-content').innerHTML = `
+        <div class="email-header-bar">
+            <div class="email-field"><span class="field-key">من:</span><span class="field-val">${currentUser.email}</span></div>
+            <div class="email-field"><span class="field-key">الموضوع:</span><span class="field-val">📊 تقرير شامل بالمشاكل التقنية — ${date}</span></div>
+        </div>
+        <div class="email-body-area">
+            <p class="email-greeting">السادة المعنيون،</p>
+            <p>التقرير الشامل للمشاكل التقنية (${issues.length} مشكلة).</p>
+            <div class="email-hours-highlight">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                إجمالي ساعات العمل المهدرة: ${totalH} ساعة فعلية
+            </div>
+            ${issues.slice(0,5).map(i=>`<p>• <strong>${i.region}</strong> — ${i.issueType} | ${fmtDur(calcDur(i.startTime,i.resolutionTime))}</p>`).join('')}
+            ${issues.length>5?`<p style="color:var(--ink-muted);">...و ${issues.length-5} مشاكل أخرى</p>`:''}
+            <p style="color:var(--ink-muted);font-size:0.88em;margin-top:16px;">— ${currentUser.email}</p>
+        </div>`;
+    document.querySelectorAll('#bulk-panel .tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.querySelectorAll('#bulk-panel .tab-pane').forEach((p,i) => p.classList.toggle('active', i===0));
+    $('pt-date').textContent = date; $('pt-ref').textContent = 'تقرير شامل'; $('pt-admin').textContent = currentUser.email;
+    $('pt-body').innerHTML = buildBulkLetter(issues, date, currentUser.email);
+    openPanel('bulk');
+}
+
+$('bulk-report-btn').addEventListener('click', openBulkPanel);
+$('print-bulk-btn').addEventListener('click', () => window.print());
+$('copy-bulk-btn').addEventListener('click', () => copyText($('bulk-letter-content').innerText));
+$('copy-bulk-email-btn').addEventListener('click', () => copyText(buildBulkEmailPlain(filteredIssuesForExport, dayjs().format('YYYY/MM/DD'), currentUser.email)));
+$('open-bulk-mail-btn').addEventListener('click', () => {
+    const date = dayjs().format('YYYY/MM/DD');
+    window.open(`mailto:?subject=${encodeURIComponent(`تقرير شامل بالمشاكل التقنية — ${date}`)}&body=${encodeURIComponent(buildBulkEmailPlain(filteredIssuesForExport, date, currentUser.email))}`);
+});
+
+// ── EXCEL ──
+$('export-excel-btn').addEventListener('click', () => {
+    const data = filteredIssuesForExport.map(i => {
+        const d = calcDur(i.startTime, i.resolutionTime);
+        return { 'المنطقة':i.region,'نوع المشكلة':i.issueType,'الأداة المتأثرة':i.affectedTool,'الإدارة':i.department,'الحالة':i.status,
+            'وقت البدء':dayjs(i.startTime).format('YYYY-MM-DD HH:mm'),
+            'وقت الحل':i.resolutionTime?dayjs(i.resolutionTime).format('YYYY-MM-DD HH:mm'):'لم تحل',
+            'ساعات العمل المهدرة':(d.totalMinutes/60).toFixed(2),
+            'بواسطة':i.createdByEmail||'','حُل بواسطة':i.resolvedByEmail||'' };
+    });
+    const ws = XLSX.utils.json_to_sheet(data), wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Issues');
+    XLSX.writeFile(wb, `Issues-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+    toast('تم تصدير Excel');
+});
+
+// ── FILTERS ──
+$('filter-region').addEventListener('change', renderTable);
+$('filter-status').addEventListener('change', renderTable);
+$('add-issue-btn').addEventListener('click', openAddPanel);
+$('logout-btn').addEventListener('click', () => signOut(auth));
+
+// ── INIT ──
+populateDropdowns();
+onAuthStateChanged(auth, async user => {
+    if (user) {
+        currentUser = user;
+        $('user-email-display').textContent = user.email;
+        $('user-avatar').textContent = (user.email || 'م')[0].toUpperCase();
+        await checkAdmin(user.uid);
+        $('app-shell').classList.add('ready');
+        onValue(issuesRef, snap => { allIssuesData = snap.val() || {}; renderTable(); }, err => console.error(err));
+    } else { window.location.href = 'login.html'; }
+});
+
+async function checkAdmin(uid) {
+    return new Promise(resolve => {
+        onValue(ref(database, `users/${uid}`), snap => {
+            isAdmin = snap.exists() && snap.val() === 'admin';
+            $('admin-badge-container').innerHTML = isAdmin ? `<span class="admin-badge">مدير النظام</span>` : '';
+            const ex = $('filter-status').querySelector('option[value="recurring"]');
+            if (isAdmin && !ex) {
+                const o = document.createElement('option'); o.value='recurring'; o.textContent='المشاكل المتكررة';
+                $('filter-status').appendChild(o);
+            } else if (!isAdmin && ex) { $('filter-status').removeChild(ex); }
+            resolve();
+        }, { onlyOnce:true });
+    });
+}
+</script>
 </body>
 </html>
